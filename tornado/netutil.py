@@ -54,8 +54,8 @@ elif ssl is None:
     ssl_match_hostname = SSLCertificateError = None  # type: ignore
 else:
     import tornado.backports.ssl_match_hostname
-    ssl_match_hostname = backports.ssl_match_hostname.match_hostname
-    SSLCertificateError = backports.ssl_match_hostname.CertificateError  # type: ignore
+    ssl_match_hostname = tornado.backports.ssl_match_hostname.match_hostname
+    SSLCertificateError = tornado.backports.ssl_match_hostname.CertificateError  # type: ignore
 
 if hasattr(ssl, 'SSLContext'):
     if hasattr(ssl, 'create_default_context'):
@@ -81,7 +81,7 @@ if hasattr(ssl, 'SSLContext'):
 elif ssl:
     # Python 2.6-2.7.8
     _client_ssl_defaults = dict(cert_reqs=ssl.CERT_REQUIRED,
-                                ca_certs=certifi.where())
+                                ca_certs=tornado.certifi.where())
     _server_ssl_defaults = {}
 else:
     # Google App Engine
