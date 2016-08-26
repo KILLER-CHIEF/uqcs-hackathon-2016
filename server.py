@@ -19,6 +19,8 @@ import tornado.ioloop
 import tornado.options
 import tornado.web
 import tornado.art
+import tornado.websocket
+from tornado.template import Template, Loader
 
 from tornado.options import define, options
 
@@ -27,14 +29,25 @@ define("port", default=8888, help="run on the given port", type=int)
 
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
-        self.write("Hello, world")
+        loader = Loader("./")
+        self.write(loader.load("index.html").generate())
 
+class EchoWebSocket(tornado.websocket.WebSocketHandler):
+    def open(self):
+        print("WebSocket opened")
+
+    def on_message(self, message):
+        self.write_message(u"You said: " + message)
+
+    def on_close(self):
+        print("WebSocket closed")
 
 def main():
     tornado.art.show()
     tornado.options.parse_command_line()
     application = tornado.web.Application([
         (r"/", MainHandler),
+        (r"/websocket", EchoWebSocket),
     ])
     http_server = tornado.httpserver.HTTPServer(application)
     http_server.listen(options.port)
