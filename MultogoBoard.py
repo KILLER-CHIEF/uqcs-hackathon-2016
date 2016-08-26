@@ -1,49 +1,45 @@
 
 
-
-
-class board(object):
-	
-	#Note: Stone ID's
-	# -2 == Unknown / Invalid / Error
-	# -1 == Space / No Stone
+class Board(object):
+	#Note: Stone ID's in Board
+	# None == Space / No Stone
 	#  0 == Player 0
 	#  1 == Player 1
 	#  . == Player .
 	#  x == Player x
 	
 	def __init__(self, width, height):
-		self.board = [-1] * (width * height)
+		self.board = [None] * (width * height)
 		self.width = width
 		self.height = height
 	
 	#Returns type int index
-	def GetCoordIndex(self, x, y):
+	def getCoordIndex(self, x, y):
 		return x + (y * self.width)
 	
 	#Returns coordinate in tupple (x, y)
-	def GetIndexCoord(self, index):
+	def getIndexCoord(self, index):
 		return (index % self.width, index // self.height)
 	
 	#Returns Stone ID at that index
-	def GetStoneIdAtIndex(self, index):
+	def getStoneIdAtIndex(self, index):
 		if (index < 0 or index >= self.width * self.height):
-			return -2
+			raise IndexError("Index %d is outside board" % index)
 		return self.board[index]
 	
 	#Returns Stone ID at that coordinate
-	def GetStoneIdAtCoord(self, x, y):
+	def getStoneIdAtCoord(self, x, y):
 		if (x < 0 or x >= self.width):
-			return -2
+			raise IndexError("Index %d is outside board" % index)
 		if (y < 0 or y >= self.height):
-			return -2
+			raise IndexError("Index %d is outside board" % index)
 		return self.board[GetCoordIndex(x, y)]
 	
 	
 	#Returns tupple where
 	#index 0 is list of index-locations of Stones
 	#index 1 is if it has liberties
-	def GetStringAtIndex(self, index):
+	def getStringAtIndex(self, index):
 		stringStoneIndexs = []
 		hasLiberty = False
 		stoneId = GetStoneIdAtIndex(index)
@@ -73,7 +69,10 @@ class board(object):
 						uncheckedStoneList.append(GetCoordIndex(i, j))
 		return (stringStoneIndexs, hasLiberty)
 	
-	
+	#Clears all stone entries in the string list from the board
+	def removeString(self, string):
+		for index in string:
+			self.board[index] = None
 	
 if __name__ == '__main__':
-	print "test compile"
+	print "test compile success?"
