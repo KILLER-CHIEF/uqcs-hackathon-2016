@@ -36,7 +36,7 @@ except ImportError:
     ssl = None
 
 try:
-    import certifi
+    import tornado.certifi
 except ImportError:
     # certifi is optional as long as we have ssl.create_default_context.
     if ssl is None or hasattr(ssl, 'create_default_context'):
