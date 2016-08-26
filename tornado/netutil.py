@@ -53,7 +53,7 @@ if hasattr(ssl, 'match_hostname') and hasattr(ssl, 'CertificateError'):  # pytho
 elif ssl is None:
     ssl_match_hostname = SSLCertificateError = None  # type: ignore
 else:
-    import backports.ssl_match_hostname
+    import tornado.backports.ssl_match_hostname
     ssl_match_hostname = backports.ssl_match_hostname.match_hostname
     SSLCertificateError = backports.ssl_match_hostname.CertificateError  # type: ignore
 
