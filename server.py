@@ -19,7 +19,7 @@ define("port", default=8888, help="run on the given port", type=int)
 class PlayerHandler(WebSocketHandler):
     def __init__(self, *argv, **argkw):
         super().__init__(self, *args, **kwargs)
-        
+
         return
 
     def open(self):
@@ -33,15 +33,41 @@ class PlayerHandler(WebSocketHandler):
 
 class LobbyPageHandler(RequestHandler):
     def get(self):
-        self.render('index.html')
+        self.render('lobby.html')
+
+class NewGamePageHandler(RequestHandler):
+    def get(self):
+        self.render('new_game.html')
+
+class GamePageHandler(RequestHandler):
+    def get(self):
+        self.write("game page")
+
+class ReasourceHandler(RequestHandler):
+    def get(self, filename):
+        if filename.endswith('.js'):
+            self.set_header("Content-Type", 'text/javascript')
+        elif filename.endswith('.css'):
+            response.set_header("Content-Type", 'text/css')
+        else:
+            # just leave the header
+            pass
+
+        # load file
+        with open('reasource/' + filename, 'r') as file:
+            self.write(file.read())
+
 
 class App(Application):
     def __init__(self):
         settings = {}
         tornado.web.Application.__init__(self, [
-            tornado.web.url(r"/", LobbyPageHandler, name="lobby"),
-            tornado.web.url(r'/websocket', PlayerHandler, name="ws"),
-        ], **settings)
+            (r"/", LobbyPageHandler),
+            (r"/index", LobbyPageHandler),
+            (r"/new", NewGamePageHandler),
+            (r"/game", GamePageHandler),
+            (r'/websocket', PlayerHandler),
+        ])
 
         #self.lobbyHandler = LobbyHandler(self)
         self.gameSessions = {}
