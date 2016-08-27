@@ -19,14 +19,23 @@ define("port", default=8888, help="run on the given port", type=int)
 class PlayerHandler(WebSocketHandler):
     def __init__(self, *argv, **argkw):
         super().__init__(self, *args, **kwargs)
-
+        self.app = App.instance
         return
 
     def open(self):
         print("WebSocket opened")
+        self.player = Player()
+        self.gameSession = None
 
     def on_message(self, message):
         self.write_message(u"You said: " + message)
+        splitCommand = message.split(':')
+        if not len(splitCommand) == 2:
+            self.write_message(u"invalid:Invalid Packet!")
+            return
+        command, data = tuple(splitCommand)
+        if command == "getboard":
+            pass
 
     def on_close(self):
         print("WebSocket closed")
@@ -59,7 +68,9 @@ class ReasourceHandler(RequestHandler):
 
 
 class App(Application):
+    instance = None
     def __init__(self):
+        App.instance = self
         settings = {}
         tornado.web.Application.__init__(self, [
             (r"/", LobbyPageHandler),
