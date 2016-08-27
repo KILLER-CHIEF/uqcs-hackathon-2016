@@ -13,6 +13,12 @@ class Board(object):
 		self.width = width
 		self.height = height
 	
+	def getWidth(self):
+		return self.width
+	
+	def getHeight(self):
+		return self.height
+	
 	#Returns type int index
 	def getCoordIndex(self, x, y):
 		return x + (y * self.width)
@@ -36,9 +42,9 @@ class Board(object):
 		return self.board[GetCoordIndex(x, y)]
 	
 	
-	#Returns tupple where
-	#index 0 is list of index-locations of Stones
-	#index 1 is if it has liberties
+	#Returns tuple where
+	#index 0: list of index-locations of Stones
+	#index 1: if it has liberties
 	def getStringAtIndex(self, index):
 		stringStoneIndexs = []
 		hasLiberty = False
@@ -73,6 +79,12 @@ class Board(object):
 	def removeString(self, string):
 		for index in string:
 			self.board[index] = None
+	
+	#Finds and clears all stone entires in the board of the id given
+	def removeIdFromBoard(self, playerId):
+		for index in range(0, self.width * self.height):
+			if self.board[index] == playerId:
+				self.board[index] = None
 	
 if __name__ == '__main__':
 	print "test compile success?"

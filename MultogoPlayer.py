@@ -7,7 +7,7 @@ class Player(object):
 		self.symbol = symbol
 		self.ai = False
 		self.lost = False
-		self.wipedOffBoard = wipePlayersOnLose
+		self.wipedOffBoard = not wipePlayersOnLose
 		self.moveCount = 0
 		self.kills = 0
 		self.stringKills = 0
