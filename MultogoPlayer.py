@@ -3,17 +3,20 @@
 class Player(object):
 	#
 	
-	def __init__(self, symbol, wipePlayersOnLose):
-		self.symbol = symbol
+	def __init__(self):
+		self.symbol = None
 		self.ai = False
 		self.lost = False
-		self.wipedOffBoard = not wipePlayersOnLose
+		self.wipedOffBoard = False
 		self.moveCount = 0
 		self.kills = 0
 		self.stringKills = 0
 	
 	def getSymbol(self):
 		return self.symbol
+	
+	def setSymbol(self, symbol):
+		self.symbol = symbol
 	
 	def isAi(self, ai):
 		return self.ai
