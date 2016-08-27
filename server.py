@@ -58,7 +58,7 @@ class NewGameHandler(RequestHandler):
             width
             height
             player_limit
-            
+
         """
         return
 
@@ -95,13 +95,7 @@ class App(Application):
         ], **settings)
 
         self.gameHandlers = {
-        's1':'asdfasdfasdf1',
-        's2':'erwt',
-        's3':'sdfgsdfg',
-        's4':'asdfarrrrrrrrrrrsdfasdf1',
-        's5':'0000'
         }
-        self.var1 = "val1"
 
 def main():
     tornado.art.show()
