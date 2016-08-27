@@ -1,5 +1,6 @@
 from MultogoBoard import Board
 from MultogoPlayer import Player
+from random import randint
 
 class GameState(object):
 	PreGame = 0
@@ -28,6 +29,22 @@ class GameSession(object):
 			self.players.append(Player(symbol, self.wipePlayersOnLose))
 		else:
 			print "Player Observer"
+	
+	def getUniqueSymbol(self):
+		symbol = None
+		while symbol is None:
+			symbol = str(unichr(randint(65,90)))#A-Z
+			for playerId in range(0, self.playerCount()):
+				if self.players[playerId].getSymbol() == symbol:
+					symbol = None
+					break
+		return symbol
+	
+	def getPlayerIdFromSymbol(self, symbol):
+		for playerId in range(0, self.playerCount()):
+			if self.players[playerId].getSymbol() == symbol:
+				return playerId
+		return None
 	
 	def removeNoLiberties(self):
 		checkedStones = [False] * (self.board.getWidth() * self.board.getHeight())
