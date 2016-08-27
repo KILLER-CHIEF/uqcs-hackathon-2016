@@ -41,12 +41,26 @@ class PlayerHandler(WebSocketHandler):
         print("WebSocket closed")
 
 class LobbyPageHandler(RequestHandler):
-    def get(self):
-        self.render('lobby.html')
+    def get(response):
+        loader = Loader('templates/')
+        page = loader.load('lobby.html').generate(app=App.instance)
+        response.write(page)
 
 class NewGamePageHandler(RequestHandler):
     def get(self):
         self.render('new_game.html')
+
+class NewGameHandler(RequestHandler):
+    def post(self):
+        """
+        Data required:
+            name
+            width
+            height
+            player_limit
+            
+        """
+        return
 
 class GamePageHandler(RequestHandler):
     def get(self):
@@ -71,18 +85,23 @@ class App(Application):
     instance = None
     def __init__(self):
         App.instance = self
-        settings = {}
+        settings = {'debug':True}
         tornado.web.Application.__init__(self, [
             (r"/", LobbyPageHandler),
             (r"/index", LobbyPageHandler),
             (r"/new", NewGamePageHandler),
             (r"/game", GamePageHandler),
             (r'/websocket', PlayerHandler),
-        ])
+        ], **settings)
 
-        #self.lobbyHandler = LobbyHandler(self)
-        self.gameSessions = {}
-        self.playerHandlers = {}
+        self.gameHandlers = {
+        's1':'asdfasdfasdf1',
+        's2':'erwt',
+        's3':'sdfgsdfg',
+        's4':'asdfarrrrrrrrrrrsdfasdf1',
+        's5':'0000'
+        }
+        self.var1 = "val1"
 
 def main():
     tornado.art.show()

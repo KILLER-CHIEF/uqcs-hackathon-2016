@@ -67,6 +67,11 @@
         </div>
     </div>
         </div>
+        {% for key in app.gameHandlers.keys() %}
+        <div>some stuff</div>
+        <span>that {{ key }}</span>
+        <b>this {{app.gameHandlers[key]}}</b>
+        {% end %}
     </body>
     <script>
     var ws = new WebSocket("ws://localhost:8888/websocket");
