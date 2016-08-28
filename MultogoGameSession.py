@@ -38,8 +38,27 @@ class GameHandler(object):
 			if validCoord(x, y):
 				if (self.board[self.board.getCoordIndex(x, y)] == None):
 					self.board[self.board.getCoordIndex(x, y)] = self.playerTurnIndex
+					playerwinner = self.doBoardActions()
+					self.sendBoardToAll()
+					if playerwinner is not None:
+						for player in gameHandler.players:
+							player.client.write_message(u"gameover:"+gameHandler.players[playerwinner].getSymbol)
+					else:
+						self.playerTurnIndex += 1
+						gameHandler.players[self.playerTurnIndex].client.write_message(u"urturn:")
 					return True
+					
 		return False
+	
+	def sendBoardToAll(self):
+		board = ""
+		for i in gameHandler.board.board:
+			if i == None:
+				board += '.'
+			else:
+				board += gameHandler.players[int(i)].getSymbol()
+		for player in gameHandler.players:
+			player.client.write_message(u"board:"+str(gameHandler.board.getWidth())+','+str(gameHandler.board.getHeight())+','+board)
 	
 	def validCoord(self, x, y):
 		if x >= 0 and y >= 0 and x < self.width and y < self.height:
@@ -81,6 +100,10 @@ class GameHandler(object):
 			if self.players[playerId].client == instance:
 				return playerId
 		return None
+	
+	def doBoardActions(self)
+		self.removeNoLiberties()
+		return self.detectWinner()
 	
 	def removeNoLiberties(self):
 		checkedStones = [False] * (self.board.getWidth() * self.board.getHeight())
@@ -138,7 +161,7 @@ class GameHandler(object):
 	
 	#Returns None if no winner, otherwise player ID
 	def detectWinner(self):
-		remainingPlayerCount, players = playersRemaining()
+		remainingPlayerCount, players = self.playersRemaining()
 		if remainingPlayerCount == 0:
 			return self.playerTurnIndex
 		elif remainingPlayerCount == 1:
