@@ -17,14 +17,11 @@ from tornado.websocket import WebSocketHandler
 define("port", default=8888, help="run on the given port", type=int)
 
 class PlayerHandler(WebSocketHandler):
-	def __init__(self, *argv, **argkw):
-		super().__init__(self, *args, **kwargs)
-		self.app = App.instance
-		return
 
 	def open(self):
+		self.app = App.instance
 		print("WebSocket opened")
-		self.player = Player()
+		#self.player = Player()
 		self.gameSession = None
 
 	def on_message(self, message):
@@ -85,23 +82,24 @@ class LobbyPageHandler(RequestHandler):
 		page = loader.load('lobby.html').generate(app=App.instance)
 		response.write(page)
 
-class NewGameHandler(RequestHandler):
-	def post(self):
-		"""
-		Data required:
-			name
-			width
-			height
-			player_limit
-
-		"""
-		return
-
 class GamePageHandler(RequestHandler):
 	def get(self):
-		gameid = self.get_argument('gameid', "error")
-		self.write(gameid)
-		self.write("game page")
+		gameId = self.get_argument('gameid', "")
+		if not gameId == "" and gameId.isdigit() and int(gameId) > 0:
+			gameId = int(gameId)
+		else:
+			gameId = 0
+		gameHandler = App.instance.gameHandlers.get(gameId, None)
+		if gameHandler == None:
+			self.write("That game does not exist!")
+			return
+		#if not gameHandler.gameSession.gameState == 0:
+		#	self.write("That game has already started!")
+		#	return
+		
+		loader = Loader('templates/')
+		page = loader.load('game.html').generate(app=App.instance, joinGameId=gameId)
+		self.write(page)
 
 class ReasourceHandler(RequestHandler):
 	def get(self, filename):
@@ -140,10 +138,13 @@ class App(Application):
 	
 	def createNewGameHandler(self, name, width, height, max_players):
 		gameId = self.getUniqueGameId()
+		gameHandler = GameHandler(gameId)
+		self.gameHandlers[gameId] = gameHandler
 		return gameId
 	
 class GameHandler():
-	def __init__(self):
+	def __init__(self, gameId):
+		#self.gameSession.gameState = 0
 		pass
 
 def main():
