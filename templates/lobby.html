@@ -1,7 +1,9 @@
+
 {% extends "layout.html" %}
 {% block title %}Multi-go - Lobby{% end %}
 {% block content %}
 <div class="container">
+    <script src="reasource/js/lobby.js" type="text/javascript"></script>
     <h1>Multi-go - Lobby</h1>
     <div class="row">
         <div class="col-md-8">
@@ -32,7 +34,8 @@
                   </table>
                 </div>
             </div>
-             <button type="button" class="btn btn-lg btn-default">Join</button>
+            <div id="click-response"></div>
+             <button id="join" type="button" class="btn btn-lg btn-default">Join</button>
                 <button type="button" class="btn btn-lg btn-default">Create</button>
         </div>
     </div>

@@ -1,5 +1,5 @@
 window.onload = function(){
-
+var value;
     function onRowClick(tableId, callback) {
     var table = document.getElementById(tableId),
         rows = table.getElementsByTagName("tr"),
@@ -14,10 +14,15 @@ window.onload = function(){
 };
  
 onRowClick("games", function (row){
-    var value = row.getElementsByTagName("td")[0].innerHTML;
-    //document.getElementById('click-response').innerHTML = value + " clicked!";
+    value = row.getElementsByTagName("td")[0].innerHTML;
+    document.getElementById('click-response').innerHTML = value + " clicked!";
     console.log("value>>", value);
 });
+    var join = document.getElementById("join");
+    join.addEventListener('click', handleClick);
     
+    function handleClick(){
+        window.location = "game?gameid="+value;
+    }
 }
 
