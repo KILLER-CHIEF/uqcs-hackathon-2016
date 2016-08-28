@@ -3,11 +3,12 @@
 class Player(object):
 	#
 	
-	def __init__(self):
-		self.symbol = None
+	def __init__(self, instance, symbol, wipePlayersOnLose):
+		self.client = instance
+		self.symbol = symbol
 		self.ai = False
 		self.lost = False
-		self.wipedOffBoard = False
+		self.wipedOffBoard = not wipePlayersOnLose
 		self.moveCount = 0
 		self.kills = 0
 		self.stringKills = 0

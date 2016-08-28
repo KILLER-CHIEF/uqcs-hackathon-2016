@@ -14,6 +14,8 @@ from tornado.template import Template, Loader
 from tornado.web import RequestHandler, Application, authenticated
 from tornado.websocket import WebSocketHandler
 
+from MultogoGameSession import GameHandler
+
 define("port", default=8888, help="run on the given port", type=int)
 
 class PlayerHandler(WebSocketHandler):
@@ -39,7 +41,7 @@ class PlayerHandler(WebSocketHandler):
 			if gameHandler == None:
 				self.write_message(u"invalid:That game does not exist!")
 				return
-			#self.gameSession = gameId
+			GameHandler.addPlayer(self)
 		elif command == "getboard":
 			pass
 
@@ -151,15 +153,6 @@ class App(Application):
 		self.gameHandlers[gameId] = gameHandler
 		return gameId
 	
-class GameHandler():
-	def __init__(self, gameId, name, width, height, max_players):
-		#self.gameSession.gameState = 0
-		self.gameId = gameId
-		self.name = name
-		self.width = width
-		self.height = height
-		self.playersMax = max_players
-		self.playersIn = 0
 
 def main():
 	tornado.art.show()
