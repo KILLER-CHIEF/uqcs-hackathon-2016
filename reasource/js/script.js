@@ -1,23 +1,29 @@
 // player object
 var player = new Object();
+
+player.send_command = function (command) {
+    player.ws.send_command(command);
+};
+
+player.on_command = funciton () {
+
+};
+
+
+
 player.init = function () {
     player.ws = new WebSocket("ws://localhost:8888/websocket");
-    player.onopen = function() {
+    player.ws.onopen = function() {
        player.send("join:{{joinGameId}}");
     };
 
-    player.onmessage = function (e) {
-       player.on_command(e.data)
+    player.ws.onmessage = function (e) {
+       player.on_command(e.data);
     };
 };
 
-player.send_command = function () {
 
-};
 
-player.on_command = funciton() {
-
-};
 
 // create the board
 function create_board() {
@@ -27,6 +33,10 @@ function create_board() {
 
 function place_piece(argument) {
     
+}
+
+function redraw_board(board) {
+    // use the "x  o\nxoo \n" to redraw the board
 }
 
 // return the board 
