@@ -80,7 +80,10 @@ class NewGamePageHandler(RequestHandler):
 		self.redirect("/game?gameid="+str(gameId))
 		
 class LobbyPageHandler(RequestHandler):
-	pass
+	def get(response):
+		loader = Loader('templates/')
+		page = loader.load('lobby.html').generate(app=App.instance)
+		response.write(page)
 
 class NewGameHandler(RequestHandler):
 	def post(self):
@@ -122,15 +125,14 @@ class App(Application):
 		self.usedGameId = 0
 		settings = {'debug':True}
 		tornado.web.Application.__init__(self, [
-			(r"/", NewGamePageHandler),
+			(r"/", LobbyPageHandler),
 			(r"/index", LobbyPageHandler),
 			(r"/new", NewGamePageHandler),
 			(r"/game", GamePageHandler),
 			(r'/websocket', PlayerHandler),
 		], **settings)
 
-		self.gameHandlers = {
-		}
+		self.gameHandlers = {}
 	
 	def getUniqueGameId(self):
 		self.usedGameId += 1
@@ -140,7 +142,9 @@ class App(Application):
 		gameId = self.getUniqueGameId()
 		return gameId
 	
-	
+class GameHandler():
+	def __init__(self):
+		pass
 
 def main():
 	tornado.art.show()
