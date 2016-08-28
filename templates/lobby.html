@@ -13,7 +13,7 @@
                     <table id="games" class="table table-hover" >
                         <thead>
                             <tr>
-                                <th>Game #</th>
+                                <th>Game ID</th>
                                 <th>Name</th>
                                 <th>Players</th>
                                 <th>Board Size</th>
@@ -22,10 +22,10 @@
                         <tbody style="cursor:pointer">
                             {% for key in app.gameHandlers.keys() %}
                                 <tr>
+                                    <td>{{app.gameHandlers[key].gameId}}</td>
                                     <td>{{app.gameHandlers[key].name}}</td>
-                                    <td>{{app.gameHandlers[key].playersIn}}</td>
-                                    <td>{{app.gameHandlers[key].playerMax}}</td>
-                                    <td>{{app.gameHandlers[key].width}}x{{gameHandlers[key].height}}</td>
+                                    <td>{{app.gameHandlers[key].playersIn}}\{{app.gameHandlers[key].playersMax}}</td>
+                                    <td>{{app.gameHandlers[key].width}}x{{app.gameHandlers[key].height}}</td>
                                 </tr>
                             {% end %}
                         </tbody>

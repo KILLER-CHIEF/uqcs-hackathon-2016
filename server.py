@@ -147,14 +147,19 @@ class App(Application):
 	
 	def createNewGameHandler(self, name, width, height, max_players):
 		gameId = self.getUniqueGameId()
-		gameHandler = GameHandler(gameId)
+		gameHandler = GameHandler(gameId, name, width, height, max_players)
 		self.gameHandlers[gameId] = gameHandler
 		return gameId
 	
 class GameHandler():
-	def __init__(self, gameId):
+	def __init__(self, gameId, name, width, height, max_players):
 		#self.gameSession.gameState = 0
-		pass
+		self.gameId = gameId
+		self.name = name
+		self.width = width
+		self.height = height
+		self.playersMax = max_players
+		self.playersIn = 0
 
 def main():
 	tornado.art.show()
