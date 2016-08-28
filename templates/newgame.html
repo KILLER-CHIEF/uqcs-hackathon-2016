@@ -1,4 +1,6 @@
 {% extends "layout.html" %}
+{% block title %}Multi-go - New Game{% end %}
+{% block content %}
 <form method="post">
 	<input type="text" name="name" placeholder="Server Name" value="{{name}}"/>
 	<input type="text" name="width" placeholder="Board Width" value="{{width}}"/>
@@ -7,3 +9,4 @@
 	<input type="submit"/>
 </form>
 {{error}}
+{% end %}

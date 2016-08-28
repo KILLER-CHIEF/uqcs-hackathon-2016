@@ -31,7 +31,16 @@ class PlayerHandler(WebSocketHandler):
 			self.write_message(u"invalid:Invalid Packet!")
 			return
 		command, data = tuple(splitCommand)
-		if command == "getboard":
+		if command == "join":
+			gameId = 0
+			if data.isdigit() and int(data):
+				gameId = int(data)
+			gameHandler = App.instance.gameHandlers.get(gameId, None)
+			if gameHandler == None:
+				self.write_message(u"invalid:That game does not exist!")
+				return
+			#self.gameSession = gameId
+		elif command == "getboard":
 			pass
 
 	def on_close(self):
