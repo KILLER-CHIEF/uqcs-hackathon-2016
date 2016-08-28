@@ -11,7 +11,7 @@ player.on_command = function (command_data) {
 
     if (command == 'redraw') {
         redraw_board(data);
-    } else if (command == 'create') {
+    } else if (command == 'board') {
         create_board(data);
     } 
 };
@@ -33,8 +33,10 @@ player.init = function () {
 
 // create the board
 function create_board(data) {
-    var width = 8;
-    var height = 8;
+    var board_data = data.split(',');
+    var width = board_data[0];
+    var height = board_data[1];
+    var board = $('#board');
 
     var table = $('table');
     for (var i = 0 - 1; i <= height; i++) {
@@ -45,13 +47,10 @@ function create_board(data) {
             tr.add(td);
             td.attr("id","row"+i+"col"+j);
             
-        
-    }
+        }
         
     }
     board.add(table);
-    
-
 }
 
 
