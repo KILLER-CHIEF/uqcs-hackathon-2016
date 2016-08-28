@@ -75,8 +75,9 @@ class NewGamePageHandler(RequestHandler):
 			self.write_page(name, width, height, max_players, "Incorrect Data!")
 			return
 		
-		print "success"
-		self.redirect("/game?gameid="+str(12354))
+		gameId = App.instance.createNewGameHandler(name, width, height, max_players)
+		print "New Game Created"
+		self.redirect("/game?gameid="+str(gameId))
 		
 class LobbyPageHandler(RequestHandler):
 	pass
@@ -118,6 +119,7 @@ class App(Application):
 	instance = None
 	def __init__(self):
 		App.instance = self
+		self.usedGameId = 0
 		settings = {'debug':True}
 		tornado.web.Application.__init__(self, [
 			(r"/", NewGamePageHandler),
@@ -129,6 +131,16 @@ class App(Application):
 
 		self.gameHandlers = {
 		}
+	
+	def getUniqueGameId(self):
+		self.usedGameId += 1
+		return self.usedGameId
+	
+	def createNewGameHandler(self, name, width, height, max_players):
+		gameId = self.getUniqueGameId()
+		return gameId
+	
+	
 
 def main():
 	tornado.art.show()
