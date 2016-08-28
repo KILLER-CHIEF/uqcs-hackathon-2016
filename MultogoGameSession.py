@@ -101,7 +101,7 @@ class GameHandler(object):
 				return playerId
 		return None
 	
-	def doBoardActions(self)
+	def doBoardActions(self):
 		self.removeNoLiberties()
 		return self.detectWinner()
 	
