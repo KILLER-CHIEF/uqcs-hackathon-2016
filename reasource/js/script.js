@@ -1,3 +1,47 @@
+// player object
+var player = new Object();
+player.init = function () {
+    player.ws = new WebSocket("ws://localhost:8888/websocket");
+    player.onopen = function() {
+       player.send("join:{{joinGameId}}");
+    };
+
+    player.onmessage = function (e) {
+       player.on_command(e.data)
+    };
+};
+
+player.send_command = function () {
+
+};
+
+player.on_command = funciton() {
+
+};
+
+// create the board
+function create_board() {
+
+}
+
+
+function place_piece(argument) {
+    
+}
+
+// return the board 
+/* eg of return
+
+"x  o\nxoo \n"
+
+
+
+*/
+function get_board() {
+
+}
+
+
 window.onload = function(){
 var width =800;
 var height = 800;
