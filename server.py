@@ -41,7 +41,7 @@ class PlayerHandler(WebSocketHandler):
 			if gameHandler == None:
 				self.write_message(u"invalid:That game does not exist!")
 				return
-			GameHandler.addPlayer(self)
+			gameHandler.addPlayer(self)
 		elif command == "getboard":
 			pass
 

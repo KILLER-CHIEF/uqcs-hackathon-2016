@@ -26,9 +26,10 @@ class GameHandler(object):
 		self.wipePlayersOnLose = wipeOff
 	
 	def addPlayer(self, instance):
-		if self.gameState == GameState.PreGame and self.playerCount() < self.playerLimit:
-			self.players.append(Player(instance, getUniqueSymbol(), self.wipePlayersOnLose))
+		if self.gameState == GameState.PreGame and self.getPlayerCount() < self.playersMax:
+			self.players.append(Player(instance, self.getUniqueSymbol(), self.wipePlayersOnLose))
 			instance.write_message(u"info:Joined Game!")
+			return
 		if self.gameState == GameState.PostGame:
 			print "Player joined in post-game"
 		else:
@@ -39,14 +40,14 @@ class GameHandler(object):
 		symbol = None
 		while symbol is None:
 			symbol = str(unichr(randint(65,90)))#A-Z
-			for playerId in range(0, self.playerCount()):
+			for playerId in range(0, self.getPlayerCount()):
 				if self.players[playerId].getSymbol() == symbol:
 					symbol = None
 					break
 		return symbol
 	
 	def getPlayerIdFromSymbol(self, symbol):
-		for playerId in range(0, self.playerCount()):
+		for playerId in range(0, self.getPlayerCount()):
 			if self.players[playerId].getSymbol() == symbol:
 				return playerId
 		return None
@@ -86,7 +87,7 @@ class GameHandler(object):
 						self.players[playerId].setLost()
 						self.players[self.playerTurnIndex].incrementStringKills()
 						self.board.removeString(stringList[stringIndex][0])
-			for playerId in range(0, self.playerCount()):
+			for playerId in range(0, self.getPlayerCount()):
 				if self.players[playerId].hasLost() and not self.players[playerId].isWipedOffBoard():
 					removeIdFromBoard(playerId)
 	
@@ -99,7 +100,7 @@ class GameHandler(object):
 	def playersRemaining(self):
 		remainingPlayerCount = 0
 		playerList = []
-		for playerId in range(0, self.playerCount()):
+		for playerId in range(0, self.getPlayerCount()):
 			if not self.players[playerId].hasLost():
 				remainingPlayerCount += 1
 				playerList.append(playerId)
