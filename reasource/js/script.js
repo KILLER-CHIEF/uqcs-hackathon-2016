@@ -33,14 +33,24 @@ player.init = function () {
 
 // create the board
 function create_board(data) {
-    var width;
-    var height;
+    var width = 8;
+    var height = 8;
 
     var table = $('table');
     for (var i = 0 - 1; i <= height; i++) {
-        table.add($('tr'));
+        var tr = $('tr');
+        table.add(tr);
+        for (var j = 0 - 1; j <= width; i++) {
+            var td = $('td')
+            tr.add(td);
+            td.attr("id","row"+i+"col"+j);
+            
         
     }
+        
+    }
+    board.add(table);
+    
 
 }
 
@@ -68,6 +78,7 @@ function get_board() {
 
 
 window.onload = function(){
+    create_board();
 var width =800;
 var height = 800;
 var gridWidth = 8;
