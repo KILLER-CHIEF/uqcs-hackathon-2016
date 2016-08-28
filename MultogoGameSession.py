@@ -22,6 +22,30 @@ class GameHandler(object):
 		self.wipePlayersOnLose = False
 		self.gameState = GameState.PreGame
 	
+	def makeMove(self, data):
+		move = data.split(' ')
+		if len(move) == 2:
+			x = move[0]
+			y = move[1]
+			if x.isdigit() and int(x) >= 0:
+				x = int(x)
+			else:
+				x = -1
+			if y.isdigit() and int(y) >= 0:
+				y = int(y)
+			else:
+				y = -1
+			if validCoord(x, y):
+				if (self.board[self.board.getCoordIndex(x, y)] == None):
+					self.board[self.board.getCoordIndex(x, y)] = self.playerTurnIndex
+					return True
+		return False
+	
+	def validCoord(self, x, y):
+		if x >= 0 and y >= 0 and x < self.width and y < self.height:
+			return True
+		return False
+	
 	def setWipePlayersOnLose(self, wipeOff):
 		self.wipePlayersOnLose = wipeOff
 	
@@ -49,6 +73,12 @@ class GameHandler(object):
 	def getPlayerIdFromSymbol(self, symbol):
 		for playerId in range(0, self.getPlayerCount()):
 			if self.players[playerId].getSymbol() == symbol:
+				return playerId
+		return None
+	
+	def getPlayerIdFromInstance(self, instance):
+		for playerId in range(0, self.getPlayerCount()):
+			if self.players[playerId].client == instance:
 				return playerId
 		return None
 	

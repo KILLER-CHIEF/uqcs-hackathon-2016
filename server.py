@@ -23,8 +23,7 @@ class PlayerHandler(WebSocketHandler):
 	def open(self):
 		self.app = App.instance
 		print("WebSocket opened")
-		#self.player = Player()
-		self.gameSession = None
+		self.gameId = None
 
 	def on_message(self, message):
 		self.write_message(u"You said: " + message)
@@ -42,8 +41,23 @@ class PlayerHandler(WebSocketHandler):
 				self.write_message(u"invalid:That game does not exist!")
 				return
 			gameHandler.addPlayer(self)
+			self.gameId = gameId
+		gameHandler = App.instance.gameHandlers.get(gameId, None)
+		if gameHandler == None:
+			self.write_message(u"invalid:You are not in a Game!")
 		elif command == "getboard":
 			pass
+		elif command == "move":
+			playerId = gameHandler.getPlayerIdFromInstance(self)
+			if playerId == None:
+				print "error 54 command player id"
+				return
+			if gameHandler.playerTurnIndex == playerId:
+				if gameHandler.makeMove(data):
+					return
+			self.write_message(u"invalidmove:")
+			return
+				
 
 	def on_close(self):
 		print("WebSocket closed")
