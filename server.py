@@ -46,7 +46,13 @@ class PlayerHandler(WebSocketHandler):
 		if gameHandler == None:
 			self.write_message(u"invalid:You are not in a Game!")
 		elif command == "getboard":
-			pass
+			board = ""
+			for i in gameHandler.board.board:
+				if i == None:
+					board += '.'
+				else:
+					board += gameHandler.players[int(i)].getSymbol()
+			self.write_message(u"board:"+str(gameHandler.board.getWidth())+','+str(gameHandler.board.getHeight())+','+board)
 		elif command == "move":
 			playerId = gameHandler.getPlayerIdFromInstance(self)
 			if playerId == None:
