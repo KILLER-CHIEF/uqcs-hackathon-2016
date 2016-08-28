@@ -1,20 +1,26 @@
 // player object
 var player = new Object();
 
-player.send_command = function (command) {
-    player.ws.send_command(command);
+player.send_command = function (command, data) {
+    player.ws.send(command + ':' + data);
 };
 
-player.on_command = funciton () {
+player.on_command = function (command_data) {
+    command = command_data.split(':')[0];
+    data = command_data.split(':')[1];
 
+    if (command == 'redraw') {
+        redraw_board(data);
+    } else if (command == 'create') {
+        create_board(data);
+    } 
 };
-
 
 
 player.init = function () {
     player.ws = new WebSocket("ws://localhost:8888/websocket");
     player.ws.onopen = function() {
-       player.send("join:{{joinGameId}}");
+       player.send_command("join","{{joinGameId}}");
     };
 
     player.ws.onmessage = function (e) {
@@ -26,13 +32,14 @@ player.init = function () {
 
 
 // create the board
-function create_board() {
+function create_board(data) {
 
 }
 
 
-function place_piece(argument) {
-    
+function place_piece(x, y) {
+    player.send_command("move", x.toString() + ' ' + y.toString());
+    player.send_command("get_board", "");
 }
 
 function redraw_board(board) {

@@ -1,34 +1,27 @@
 
 {% extends "layout.html" %}
 {% block content %}
-
-    <div class="container">
+<div class="container">
     <h1>Multi-go</h1>
 
     <div class="row">
         <div class="col-md-8">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h3 class="panel-title">Status:</h3>
-            </div>
-            <div class="panel-body">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Status:</h3>
+                </div>
+                <div class="panel-body">
                 
-<canvas id="canvas" width="800" height="800"></canvas>
+                <canvas id="canvas" width="800" height="800"></canvas>
 
-            </div>
+                </div>
             </div>
         </div>
     </div>
-        </div>
-		<script>
-    var ws = new WebSocket("ws://localhost:8888/websocket");
-    ws.onopen = function() {
-       ws.send("join:{{joinGameId}}");
-    };
-    ws.onmessage = function (evt) {
-       alert(evt.data);
-    };
-    </script>
+</div>
+<script>
+player.init();
+</script>
 {% end %}
     
 
