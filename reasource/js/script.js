@@ -36,9 +36,14 @@ function create_board(data) {
     var board_data = data.split(',');
     var width = board_data[0];
     var height = board_data[1];
+    var board_content = board_data[2];
     var board = $('#board');
 
+    // handle table deconstruction
+    if ()
+
     var table = $('table');
+    table.attr('id', 'game-table');
     for (var i = 0 - 1; i <= height; i++) {
         var tr = $('tr');
         table.add(tr);
@@ -78,6 +83,9 @@ function get_board() {
 
 
 window.onload = function(){
+<<<<<<< HEAD
     create_board();
+=======
+>>>>>>> d80f413e036c5651562e489c60d0dfb42f442798
 
 }
