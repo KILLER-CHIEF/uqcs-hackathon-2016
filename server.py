@@ -52,7 +52,9 @@ class PlayerHandler(WebSocketHandler):
 			if playerId == None:
 				print "error 54 command player id"
 				return
-			if gameHandler.playerTurnIndex == playerId:
+			if not gameHandler.playerTurnIndex == playerId:
+				self.write_message(u"noturturn:")
+			else:
 				if gameHandler.makeMove(data):
 					return
 			self.write_message(u"invalidmove:")
