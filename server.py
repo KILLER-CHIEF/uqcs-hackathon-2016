@@ -115,7 +115,7 @@ class ReasourceHandler(RequestHandler):
 		if filename.endswith('.js'):
 			self.set_header("Content-Type", 'text/javascript')
 		elif filename.endswith('.css'):
-			response.set_header("Content-Type", 'text/css')
+			self.set_header("Content-Type", 'text/css')
 		else:
 			# just leave the header
 			pass
@@ -137,6 +137,8 @@ class App(Application):
 			(r"/new", NewGamePageHandler),
 			(r"/game", GamePageHandler),
 			(r'/websocket', PlayerHandler),
+            (r'/reasource/(.+.js)',ReasourceHandler),
+            (r'/reasource/(.+.css)',ReasourceHandler),
 		], **settings)
 
 		self.gameHandlers = {}
