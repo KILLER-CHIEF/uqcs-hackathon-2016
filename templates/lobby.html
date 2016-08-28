@@ -24,7 +24,7 @@
                                 <tr>
                                     <td>{{app.gameHandlers[key].gameId}}</td>
                                     <td>{{app.gameHandlers[key].name}}</td>
-                                    <td>{{app.gameHandlers[key].playersIn}}\{{app.gameHandlers[key].playersMax}}</td>
+                                    <td>{{app.gameHandlers[key].getPlayerCount()}}\{{app.gameHandlers[key].playersMax}}</td>
                                     <td>{{app.gameHandlers[key].width}}x{{app.gameHandlers[key].height}}</td>
                                 </tr>
                             {% end %}

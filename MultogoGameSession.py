@@ -7,41 +7,47 @@ class GameState(object):
 	InGame = 1
 	PostGame = 2
 
-class GameSession(object):
+class GameHandler(object):
 	#
 	
-	def __init__(self, width, height, playerLimit):
-		self.board = Board(width, height)
+	def __init__(self, gameId, name, width, height, max_players):
+		self.gameId = gameId
+		self.name = name
+		self.width = width
+		self.height = height
+		self.playersMax = max_players
 		self.players = []
+		self.board = Board(width, height)
 		self.playerTurnIndex = 0
 		self.wipePlayersOnLose = False
 		self.gameState = GameState.PreGame
-		self.playerLimit = playerLimit
 	
 	def setWipePlayersOnLose(self, wipeOff):
 		self.wipePlayersOnLose = wipeOff
 	
-	def addPlayer(self, symbol):
+	def addPlayer(self, instance):
+		if self.gameState == GameState.PreGame and self.getPlayerCount() < self.playersMax:
+			self.players.append(Player(instance, self.getUniqueSymbol(), self.wipePlayersOnLose))
+			instance.write_message(u"info:Joined Game!")
+			return
 		if self.gameState == GameState.PostGame:
 			print "Player joined in post-game"
-			return
-		if self.gameState == GameState.PreGame and self.playerCount() < self.playerLimit:
-			self.players.append(Player(symbol, self.wipePlayersOnLose))
 		else:
 			print "Player Observer"
+		instance.write_message(u"invalid:Failed to Join!")
 	
 	def getUniqueSymbol(self):
 		symbol = None
 		while symbol is None:
 			symbol = str(unichr(randint(65,90)))#A-Z
-			for playerId in range(0, self.playerCount()):
+			for playerId in range(0, self.getPlayerCount()):
 				if self.players[playerId].getSymbol() == symbol:
 					symbol = None
 					break
 		return symbol
 	
 	def getPlayerIdFromSymbol(self, symbol):
-		for playerId in range(0, self.playerCount()):
+		for playerId in range(0, self.getPlayerCount()):
 			if self.players[playerId].getSymbol() == symbol:
 				return playerId
 		return None
@@ -81,11 +87,11 @@ class GameSession(object):
 						self.players[playerId].setLost()
 						self.players[self.playerTurnIndex].incrementStringKills()
 						self.board.removeString(stringList[stringIndex][0])
-			for playerId in range(0, self.playerCount()):
+			for playerId in range(0, self.getPlayerCount()):
 				if self.players[playerId].hasLost() and not self.players[playerId].isWipedOffBoard():
 					removeIdFromBoard(playerId)
 	
-	def playerCount(self):
+	def getPlayerCount(self):
 		return len(self.players)
 	
 	#Returns a tuple where
@@ -94,7 +100,7 @@ class GameSession(object):
 	def playersRemaining(self):
 		remainingPlayerCount = 0
 		playerList = []
-		for playerId in range(0, self.playerCount()):
+		for playerId in range(0, self.getPlayerCount()):
 			if not self.players[playerId].hasLost():
 				remainingPlayerCount += 1
 				playerList.append(playerId)
