@@ -13,38 +13,27 @@
 <!-- Latest compiled and minified JavaScript -->
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
     
-    <script src="../reasource/js/script.js" type="text/javascript"></script>
+    <script src="js/script.js" type="text/javascript"></script>
     <link rel="stylesheet" type="text/css" href="css/style.css">
     
         </head>
-<body>
-    <div class="container">
-    <h1>Multi-go</h1>
 
+{% block title %}Multi-go - New Game{% end %}
+{% block content %}
+<div class="container">
+    <h1>Multi-go - New Game</h1>
     <div class="row">
         <div class="col-md-8">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h3 class="panel-title">Status:</h3>
-            </div>
-            <div class="panel-body">
+           
+            <form>
+            <div class="form-group">
+                <label for="gameName">Name of game:</label>
+                <input type="text" class="form-control" id="gameName" placeholder="Enter game name">
                 
-<canvas id="canvas" width="800" height="800"></canvas>
-
-            </div>
-            </div>
+                </div>
+            </form>
         </div>
     </div>
-        </div>
-    </body>
-    <script>
-    var ws = new WebSocket("ws://localhost:8888/websocket");
-    ws.onopen = function() {
-       ws.send("Hello, world");
-    };
-    ws.onmessage = function (evt) {
-       alert(evt.data);
-    };
-    </script>
-
+</div>
+{% end %}
 </html>
