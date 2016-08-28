@@ -33,6 +33,14 @@ player.init = function () {
 
 // create the board
 function create_board(data) {
+    var width;
+    var height;
+
+    var table = $('table');
+    for (var i = 0 - 1; i <= height; i++) {
+        table.add($('tr'));
+        
+    }
 
 }
 
