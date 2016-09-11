@@ -3,43 +3,63 @@
 {% block title %}Multogo - Lobby{% end %}
 {% block content %}
 <div class="container">
-    <script src="reasource/js/lobby.js" type="text/javascript"></script>
-    <h1>Multogo - Lobby</h1>
-    <div class="row">
-        <div class="col-md-8">
-            <div class="panel panel-default">
-                <!--div class="panel-heading">
-                    <h3 class="panel-title">Games:</h3>
-                </div-->
-                <div id="games-table" class="panel-body">
-                    <table id="games" class="table table-hover" >
-                        <thead>
-                            <tr>
-                                <th>Game ID</th>
-                                <th>Name</th>
-                                <th>Players</th>
-                                <th>Board Size</th>
-                            </tr>
-                        </thead>
-                        <tbody style="cursor:pointer">
-                            {% for key in app.gameHandlers.keys() %}
-								{% if app.gameHandlers[key].gameState >= 0 %}
+	<script src="reasource/js/lobby.js" type="text/javascript"></script>
+	<script>
+		function togglePastGames() {
+			var rows = document.getElementsByClassName("unjoinable");
+			for (var i = 0; i < rows.length; i++) {
+				rows[i].style.display = rows[i].style.display === 'none' ? 'table-row' : 'none';
+			}
+		}
+	</script>
+	<h1>Multogo - Game Lobby</h1>
+	<div class="row">
+		<div class="col-md-8">
+			<div class="panel panel-default">
+				<!--div class="panel-heading">
+					<h3 class="panel-title">Games:</h3>
+				</div-->
+				<div id="games-table" class="panel-body">
+					<table id="games" class="table table-hover" style="table-layout:fixed;" >
+						<thead>
+							<tr>
+								<th>Game ID</th>
+								<th>Game State</th>
+								<th width="50%">Name</th>
+								<th>Players</th>
+								<th>Board Size</th>
+							</tr>
+						</thead>
+						<tbody style="cursor:pointer">
+							{% for key in app.gameHandlers.keys() %}
+								{% if app.gameHandlers[key].gameState == 0 %}
 									<tr>
 										<td>{{app.gameHandlers[key].gameId}}</td>
+										<td>{{app.gameHandlers[key].getGameStateStr()}}</td>
 										<td>{{app.gameHandlers[key].name}}</td>
 										<td>{{app.gameHandlers[key].getPlayerCount()}}\{{app.gameHandlers[key].playersMax}}</td>
 										<td>{{app.gameHandlers[key].width}}x{{app.gameHandlers[key].height}}</td>
 									</tr>
 								{% end %}
-                            {% end %}
-                        </tbody>
-                  </table>
-                </div>
-            </div>
-            <div id="click-response"></div>
-             <button id="join" type="button" class="btn btn-lg btn-default">Join</button>
-                <button type="button" class="btn btn-lg btn-default">Create</button>
-        </div>
-    </div>
+							{% end %}
+							{% for key in app.gameHandlers.keys() %}
+								{% if app.gameHandlers[key].gameState > 0 %}
+									<tr class="unjoinable">
+										<td>{{app.gameHandlers[key].gameId}}</td>
+										<td>{{app.gameHandlers[key].getGameStateStr()}}</td>
+										<td>{{app.gameHandlers[key].name}}</td>
+										<td>{{app.gameHandlers[key].getPlayerCount()}}\{{app.gameHandlers[key].playersMax}}</td>
+										<td>{{app.gameHandlers[key].width}}x{{app.gameHandlers[key].height}}</td>
+									</tr>
+								{% end %}
+							{% end %}
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<button id="join" type="button" class="btn btn-lg btn-disabled">Join</button>
+			<button onclick="togglePastGames();" class="btn btn-lg btn-warning">Toggle Past Games</button>
+		</div>
+	</div>
 </div>
 {% end %}

@@ -22,6 +22,15 @@ class GameHandler(object):
 		self.wipePlayersOnLose = False
 		self.gameState = GameState.PreGame
 	
+	def getGameStateStr(self):
+		if self.gameState == GameState.PreGame:
+			return "Pre-Game"
+		elif self.gameState == GameState.InGame:
+			return "In-Game"
+		elif self.gameState == GameState.PostGame:
+			return "Post-Game"
+		return "Unknown"
+	
 	def startGame(self):
 		self.gameState = GameState.InGame
 		self.sendMessageToAll(u"gamebegin:")
