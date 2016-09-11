@@ -2,7 +2,7 @@
 {% extends "layout.html" %}
 {% block content %}
 <div class="container">
-    <h1>Multi-go</h1>
+    <h1>Multogo</h1>
 
     <div class="row">
         <div class="col-md-8">
@@ -11,7 +11,9 @@
                     <h3 class="panel-title">Status:</h3>
                 </div>
                 <div class="panel-body">
-                
+                <textarea name="cmdinfo" rows="20" style="width:100%; max-width: 100%;" placeholder="Returned Command Data"></textarea>
+				<textarea name="cmddata" rows="2" style="width:100%; max-width: 100%;" placeholder="Command Data"></textarea>
+				<button onclick="sendCmd()">Send Cmd</button>
                 <div id="board"></div>
 
                 </div>
@@ -19,7 +21,8 @@
         </div>
     </div>
 </div>
-<script>
+<script type="text/javascript">
+var gameId = {{joinGameId}};
 player.init();
 </script>
 {% end %}

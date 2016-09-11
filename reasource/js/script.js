@@ -1,26 +1,38 @@
 // player object
 var player = new Object();
 
+function sendCmd() {
+	var data = document.getElementsByName("cmddata")[0].value;
+	var split = data.split(":");
+	player.send_command(split[0], split[1]);
+	return true;
+}
+
 player.send_command = function (command, data) {
     player.ws.send(command + ':' + data);
 };
 
 player.on_command = function (command_data) {
+	document.getElementsByName("cmdinfo")[0].value += "\n"+command_data+"\n";
     command = command_data.split(':')[0];
     data = command_data.split(':')[1];
 
-    if (command == 'redraw') {
-        redraw_board(data);
+	if (command == "alert") {
+		alert(data);
+	} else if (command == "info") {
+		alert(command_data);
+	} else if (command == 'redraw') {
+        //redraw_board(data);
     } else if (command == 'board') {
-        create_board(data);
-    } 
+        //create_board(data);
+    }
 };
 
 
 player.init = function () {
     player.ws = new WebSocket("ws://localhost:8888/websocket");
     player.ws.onopen = function() {
-       player.send_command("join","{{joinGameId}}");
+		player.send_command("join", gameId);
     };
 
     player.ws.onmessage = function (e) {
@@ -40,7 +52,7 @@ function create_board(data) {
     var board = $('#board');
 
     // handle table deconstruction
-    if ()
+    //if ()
 
     var table = $('table');
     table.attr('id', 'game-table');
@@ -83,9 +95,5 @@ function get_board() {
 
 
 window.onload = function(){
-<<<<<<< HEAD
-    create_board();
-=======
->>>>>>> d80f413e036c5651562e489c60d0dfb42f442798
-
+    //create_board();
 }

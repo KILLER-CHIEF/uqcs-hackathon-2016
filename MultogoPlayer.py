@@ -24,6 +24,8 @@ class Player(object):
 	
 	def setAi(self, ai):
 		self.ai = ai
+		if self.ai == True:
+			self.client = None
 	
 	def hasLost(self):
 		return self.lost

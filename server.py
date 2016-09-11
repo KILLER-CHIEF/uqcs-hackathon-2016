@@ -15,6 +15,7 @@ from tornado.web import RequestHandler, Application, authenticated
 from tornado.websocket import WebSocketHandler
 
 from MultogoGameSession import GameHandler
+from MultogoGameSession import GameState
 
 define("port", default=8888, help="run on the given port", type=int)
 
@@ -26,13 +27,25 @@ class PlayerHandler(WebSocketHandler):
 		self.gameId = None
 
 	def on_message(self, message):
-		self.write_message(u"You said: " + message)
+		#self.write_message(u"You said: " + message)
 		splitCommand = message.split(':')
 		if not len(splitCommand) == 2:
 			self.write_message(u"invalid:Invalid Packet!")
 			return
 		command, data = tuple(splitCommand)
-		if command == "join":
+		#---------- Public Requests ----------
+		if command == "ping":
+			self.write_message(u"ping:Pong!")
+			return
+		elif command == "postdata":
+			if data.isdigit() and int(data):
+				gameHandler = App.instance.gameHandlers.get(int(data), None)
+				if gameHandler is not None:
+					gameHandler.sendPostGameReport(self)
+				else:
+					self.write_message(u"info:Game %d does not exist!" % int(data))
+				return
+		elif command == "join":
 			gameId = 0
 			if data.isdigit() and int(data):
 				gameId = int(data)
@@ -42,10 +55,22 @@ class PlayerHandler(WebSocketHandler):
 				return
 			gameHandler.addPlayer(self)
 			self.gameId = gameId
-		gameHandler = App.instance.gameHandlers.get(gameId, None)
+			return
+		elif command == "status":
+			if data.isdigit() and int(data):
+				gameHandler = App.instance.gameHandlers.get(int(data), None)
+				if gameHandler is not None:
+					self.write_message(u"status:%d" % gameHandler.gameState)
+				else:
+					self.write_message(u"info:Game %d does not exist!" % int(data))
+				return
+			
+		gameHandler = App.instance.gameHandlers.get(self.gameId, None)
+		#--- Valid Game Handle ---
 		if gameHandler == None:
 			self.write_message(u"invalid:You are not in a Game!")
-		elif command == "getboard":
+		#---------- Game Requests ----------
+		elif command == "board":
 			board = ""
 			for i in gameHandler.board.board:
 				if i == None:
@@ -53,22 +78,52 @@ class PlayerHandler(WebSocketHandler):
 				else:
 					board += gameHandler.players[int(i)].getSymbol()
 			self.write_message(u"board:"+str(gameHandler.board.getWidth())+','+str(gameHandler.board.getHeight())+','+board)
+		elif command == "status":
+			self.write_message(u"status:%d" % gameHandler.gameState)
+		elif command == "postdata":
+			gameHandler.sendPostGameReport(self)
+		#---------- Pre-Game ----------
+		elif command == "startgame":
+			if gameHandler.gameState == GameState.PreGame:
+				playerId = gameHandler.getPlayerIdFromInstance(self)
+				if playerId == 0:
+					gameHandler.startGame()
+				else:
+					self.write_message(u"info:You do not have permission to start the game!")
+			else:
+				self.write_message(u"info:The game has already started!")
+		#---------- In-Game ---------
 		elif command == "move":
+			if not gameHandler.gameState == GameState.InGame:
+				self.write_message(u"info:The game is not in progress!")
+				return
 			playerId = gameHandler.getPlayerIdFromInstance(self)
 			if playerId == None:
-				print "error 54 command player id"
+				self.write_message(u"invalidmove:")
+				self.write_message(u"alert:You are not in a game!")
 				return
 			if not gameHandler.playerTurnIndex == playerId:
 				self.write_message(u"noturturn:")
+				return
 			else:
 				if gameHandler.makeMove(data):
 					return
 			self.write_message(u"invalidmove:")
 			return
-				
+		else:
+			self.write_message(u"unknown:%s" % message)
 
 	def on_close(self):
 		print("WebSocket closed")
+		gameHandler = App.instance.gameHandlers.get(self.gameId, None)
+		if gameHandler is not None:
+			playerId = gameHandler.getPlayerIdFromInstance(self)
+			if playerId is not None:
+				gameHandler.removePlayer(playerId)
+				print("Player %d removed from game %d." % (playerId,self.gameId))
+			else:
+				print("Player does not seem to be in game %d!" % self.gameId)
+		
 
 class NewGamePageHandler(RequestHandler):
 
@@ -124,7 +179,8 @@ class GamePageHandler(RequestHandler):
 			gameId = 0
 		gameHandler = App.instance.gameHandlers.get(gameId, None)
 		if gameHandler == None:
-			self.write("That game does not exist!")
+			self.write("<script>alert('That game does not exist!');</script>");
+			self.write("<script>location.href='/';</script>");
 			return
 		#if not gameHandler.gameSession.gameState == 0:
 		#	self.write("That game has already started!")

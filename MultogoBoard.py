@@ -39,7 +39,7 @@ class Board(object):
 			raise IndexError("Index %d is outside board" % index)
 		if (y < 0 or y >= self.height):
 			raise IndexError("Index %d is outside board" % index)
-		return self.board[GetCoordIndex(x, y)]
+		return self.board[self.getCoordIndex(x, y)]
 	
 	
 	#Returns tuple where
@@ -48,12 +48,12 @@ class Board(object):
 	def getStringAtIndex(self, index):
 		stringStoneIndexs = []
 		hasLiberty = False
-		stoneId = GetStoneIdAtIndex(index)
+		stoneId = self.getStoneIdAtIndex(index)
 		uncheckedStoneList = [index]
 		while len(uncheckedStoneList) > 0:
 			checkingStoneIndex = uncheckedStoneList.pop(0)
 			stringStoneIndexs.append(checkingStoneIndex)
-			x, y = GetIndexCoord(checkingStoneIndex)
+			x, y = self.getIndexCoord(checkingStoneIndex)
 			for loop4Times in range(0,4):
 				i = x
 				j = y - 1
@@ -66,13 +66,13 @@ class Board(object):
 				elif loop4Times == 3:
 					i = x + 1
 					j = y
-				checkingStoneIndex = GetCoordIndex(i, j)
+				checkingStoneIndex = self.getCoordIndex(i, j)
 				if (j >= 0 and i >= 0 and j < self.height and i < self.width and checkingStoneIndex not in uncheckedStoneList and checkingStoneIndex not in stringStoneIndexs):
 					tempIndexId = self.board[checkingStoneIndex]
-					if tempIndexId == -1:
-						hasLiberty = true
-					elif tempIndexId == id:
-						uncheckedStoneList.append(GetCoordIndex(i, j))
+					if tempIndexId is None:
+						hasLiberty = True
+					elif tempIndexId == stoneId:
+						uncheckedStoneList.append(self.getCoordIndex(i, j))
 		return (stringStoneIndexs, hasLiberty)
 	
 	#Clears all stone entries in the string list from the board

@@ -1,0 +1,36 @@
+
+Command List:
+
+--- Other ---
+info - general user message anouncing DATA.
+alert - alert DATA.
+invalid - internal error. could be anything!
+ping - pong!
+unknown - unknown command was received.
+
+
+--- Joining and Host ---
+joinfail - client recognises and closes connection and returns to lobby telling user why with DATA.
+joinissue - client connects but tells user DATA.
+joinend - client connects after game has already ended. refer to presenting postgame report. can/should tell user DATA.
+uhost - tells client they have control over game administration and tells user DATA.
+status - game status.
+gamebegin - signals to client the game has begun.
+joiner - DATA is letter.
+leaver - DATA is letter.
+youare - DATA is letter.
+
+
+--- Player Moves / Actions ---
+urturn - client recognises it's their turn.
+move - sent to server: DATA="X Y" where X & Y are move coordinate.
+invalidmove - tells client to try again.
+noturturn - tells client the attempted move was not allowed as it is not their turn.
+
+
+--- Board and Stats ---
+board - CLIENT: request sent to server. SERVER: send to client the game board DATA in format: Width,Height,...PlayerSymbols...BlanksAsDots...LengthOf=Width*Height...
+gameover - DATA is player symbol who won, client opens post game?
+postdata - to server DATA is game id, client DATA is report in format ???
+gamelog - DATA to chat box.
+
