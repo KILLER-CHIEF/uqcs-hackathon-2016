@@ -20,6 +20,28 @@ from MultogoGameSession import GameState
 define("port", default=81, help="run on the given port", type=int)
 
 class PlayerHandler(WebSocketHandler):
+	''' Handle the player connection. '''
+	def __init__(self, *wargs, **kwargs):
+		'''A player has just been created!'''
+		super(WebSocketHandler, self).__init__(*wargs, **kwargs)
+
+		#
+		self.publicCommands = {
+			"ping" : PlayerHandler.ping,
+			"postdata" : PlayerHandler.postdata,
+			"join" : PlayerHandler.join_game,
+			"status" : PlayerHandler.status,
+		}
+
+		#
+		self.gameCommands = {
+			"board" : PlayerHandler.board,
+			"gamestatus": PlayerHandler.gamestatus,
+			"gamepostdata": PlayerHandler.gamepostdata,
+			"startgame" : PlayerHandler.startgame,
+			"move" : PlayerHandler.move,
+		}
+		return
 
 	def open(self):
 		self.app = App.instance
@@ -33,85 +55,102 @@ class PlayerHandler(WebSocketHandler):
 			self.write_message(u"invalid:Invalid Packet!")
 			return
 		command, data = tuple(splitCommand)
-		#---------- Public Requests ----------
-		if command == "ping":
-			self.write_message(u"ping:Pong!")
-			return
-		elif command == "postdata":
-			if data.isdigit() and int(data):
-				gameHandler = App.instance.gameHandlers.get(int(data), None)
-				if gameHandler is not None:
-					gameHandler.sendPostGameReport(self)
-				else:
-					self.write_message(u"info:Game %d does not exist!" % int(data))
-				return
-		elif command == "join":
-			gameId = 0
-			if data.isdigit() and int(data):
-				gameId = int(data)
-			gameHandler = App.instance.gameHandlers.get(gameId, None)
+
+		# Run the function assocciated with the command
+		if command in self.publicCommands.keys():
+			self.publicCommands[command](self, data)
+		elif command in self.gameCommands.keys():
+			gameHandler = App.instance.gameHandlers.get(self.gameId, None)
+			#--- Valid Game Handle ---
 			if gameHandler == None:
-				self.write_message(u"invalid:That game does not exist!")
+				self.write_message(u"invalid:You are not in a Game!")
 				return
-			gameHandler.addPlayer(self)
-			self.gameId = gameId
-			return
-		elif command == "status":
-			if data.isdigit() and int(data):
-				gameHandler = App.instance.gameHandlers.get(int(data), None)
-				if gameHandler is not None:
-					self.write_message(u"status:%d" % gameHandler.gameState)
-				else:
-					self.write_message(u"info:Game %d does not exist!" % int(data))
-				return
-			
-		gameHandler = App.instance.gameHandlers.get(self.gameId, None)
-		#--- Valid Game Handle ---
-		if gameHandler == None:
-			self.write_message(u"invalid:You are not in a Game!")
-		#---------- Game Requests ----------
-		elif command == "board":
-			board = ""
-			for i in gameHandler.board.board:
-				if i == None:
-					board += '.'
-				else:
-					board += gameHandler.players[int(i)].getSymbol()
-			self.write_message(u"board:"+str(gameHandler.board.getWidth())+','+str(gameHandler.board.getHeight())+','+board)
-		elif command == "status":
-			self.write_message(u"status:%d" % gameHandler.gameState)
-		elif command == "postdata":
-			gameHandler.sendPostGameReport(self)
-		#---------- Pre-Game ----------
-		elif command == "startgame":
-			if gameHandler.gameState == GameState.PreGame:
-				playerId = gameHandler.getPlayerIdFromInstance(self)
-				if playerId == 0:
-					gameHandler.startGame()
-				else:
-					self.write_message(u"info:You do not have permission to start the game!")
-			else:
-				self.write_message(u"info:The game has already started!")
-		#---------- In-Game ---------
-		elif command == "move":
-			if not gameHandler.gameState == GameState.InGame:
-				self.write_message(u"info:The game is not in progress!")
-				return
-			playerId = gameHandler.getPlayerIdFromInstance(self)
-			if playerId == None:
-				self.write_message(u"invalidmove:")
-				self.write_message(u"alert:You are not in a game!")
-				return
-			if not gameHandler.playerTurnIndex == playerId:
-				self.write_message(u"noturturn:")
-				return
-			else:
-				if gameHandler.makeMove(data):
-					return
-			self.write_message(u"invalidmove:")
-			return
+			self.gameCommands[command](self, data, gameHandler)
 		else:
 			self.write_message(u"unknown:%s" % message)
+
+	#---------- Public Requests ----------
+	def ping(self, data):
+		self.write_message(u"ping:Pong!")
+		return
+
+	def postdata(self, data):
+		if data.isdigit() and int(data):
+			gameHandler = App.instance.gameHandlers.get(int(data), None)
+			if gameHandler is not None:
+				gameHandler.sendPostGameReport(self)
+			else:
+				self.write_message(u"info:Game %d does not exist!" % int(data))
+			return
+
+	def join_game(self, data):
+		gameId = 0
+		if data.isdigit() and int(data):
+			gameId = int(data)
+		gameHandler = App.instance.gameHandlers.get(gameId, None)
+		if gameHandler == None:
+			self.write_message(u"invalid:That game does not exist!")
+			return
+		gameHandler.addPlayer(self)
+		self.gameId = gameId
+		return
+	def status(self, data):
+		if data.isdigit() and int(data):
+			gameHandler = App.instance.gameHandlers.get(int(data), None)
+			if gameHandler is not None:
+				self.write_message(u"status:%d" % gameHandler.gameState)
+			else:
+				self.write_message(u"info:Game %d does not exist!" % int(data))
+			return
+			
+		
+	#---------- Game Requests ----------
+	def board(self, data, gameHandler):
+		board = ""
+		for i in gameHandler.board.board:
+			if i == None:
+				board += '.'
+			else:
+				board += gameHandler.players[int(i)].getSymbol()
+		self.write_message(u"board:"+str(gameHandler.board.getWidth())+','+str(gameHandler.board.getHeight())+','+board)
+	
+	def gamestatus(self, data, gameHandler):
+		self.write_message(u"status:%d" % gameHandler.gameState)
+	
+	def gamepostdata(self, data, gameHandler):
+		gameHandler.sendPostGameReport(self)
+
+	#---------- Pre-Game ----------
+	def startgame(self, data, gameHandler):
+		if gameHandler.gameState == GameState.PreGame:
+			playerId = gameHandler.getPlayerIdFromInstance(self)
+			if playerId == 0:
+				gameHandler.startGame()
+			else:
+				self.write_message(u"info:You do not have permission to start the game!")
+		else:
+			self.write_message(u"info:The game has already started!")
+
+	#---------- In-Game ---------
+	def move(self, data, gameHandler):
+		if not gameHandler.gameState == GameState.InGame:
+			self.write_message(u"info:The game is not in progress!")
+			return
+		playerId = gameHandler.getPlayerIdFromInstance(self)
+		if playerId == None:
+			self.write_message(u"invalidmove:")
+			self.write_message(u"alert:You are not in a game!")
+			return
+		if not gameHandler.playerTurnIndex == playerId:
+			self.write_message(u"noturturn:")
+			return
+		else:
+			if gameHandler.makeMove(data):
+				return
+		self.write_message(u"invalidmove:")
+		return
+
+
 
 	def on_close(self):
 		print("WebSocket closed")
@@ -204,13 +243,24 @@ class ReasourceHandler(RequestHandler):
 		with open('reasource/' + filename, 'r') as file:
 			self.write(file.read())
 
-
 class App(Application):
+	''' App is the webserver instance object. It is responsible for holding all
+	the game instances and responding to HTTP requests.'''
 	instance = None
+
 	def __init__(self):
-		App.instance = self
+		'''Creates the server.'''
+
+		App.instance = self # The can only be one
 		self.usedGameId = 0
+
+		# additional server settings
 		settings = {'debug':True}
+
+		# game instances
+		self.gameHandlers = {}
+
+		# HTTP resource handlers
 		tornado.web.Application.__init__(self, [
 			(r"/", LobbyPageHandler),
 			(r"/index", LobbyPageHandler),
@@ -220,14 +270,15 @@ class App(Application):
             (r'/reasource/(.+.js)',ReasourceHandler),
             (r'/reasource/(.+.css)',ReasourceHandler),
 		], **settings)
-
-		self.gameHandlers = {}
+		return
 	
 	def getUniqueGameId(self):
+		''' Gives you a unique game ID'''
 		self.usedGameId += 1
 		return self.usedGameId
 	
 	def createNewGameHandler(self, name, width, height, max_players):
+		''''''
 		gameId = self.getUniqueGameId()
 		gameHandler = GameHandler(gameId, name, width, height, max_players)
 		self.gameHandlers[gameId] = gameHandler
@@ -235,6 +286,7 @@ class App(Application):
 	
 
 def main():
+	''' Runs the server '''
 	tornado.art.show()
 	options.parse_command_line()
 	#BindIP = GetLocalIP.getLocalIP()
