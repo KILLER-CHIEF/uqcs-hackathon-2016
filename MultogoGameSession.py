@@ -126,9 +126,11 @@ class GameHandler(object):
 			if self.getPlayerCount() < self.playersMax:
 				newPlayer = Player(instance, self.getUniqueSymbol(), self.wipePlayersOnLose)
 				self.players.append(newPlayer)
-				self.sendMessageToAll(u"joiner:%s" % newPlayer.getSymbol())
 				self.sendMessage(instance, u"youare:%s" % newPlayer.getSymbol())
+				self.sendMessageToAll(u"joiner:%s" % newPlayer.getSymbol())
 				self.sendMessage(instance, u"info:Joined Game!")
+				if self.getPlayerCount() == 1:
+					self.notifyHostPrivileges()
 				print "Player %s joined game" % newPlayer.getSymbol()
 			else:
 				print "Player Rejected: game is full"

@@ -20,11 +20,11 @@ from MultogoGameSession import GameState
 define("port", default=81, help="run on the given port", type=int)
 
 class PlayerHandler(WebSocketHandler):
-	''' Handle the player connection. '''
-	def __init__(self, *wargs, **kwargs):
-		'''A player has just been created!'''
-		super(WebSocketHandler, self).__init__(*wargs, **kwargs)
-
+	# Handle the player connection.
+	#def __init__(self, *wargs, **kwargs):
+	#	# A player has just been created!
+	#	super(WebSocketHandler, self).__init__(*wargs, **kwargs)
+	def init(self):
 		#
 		self.publicCommands = {
 			"ping" : PlayerHandler.ping,
@@ -32,7 +32,7 @@ class PlayerHandler(WebSocketHandler):
 			"join" : PlayerHandler.join_game,
 			"status" : PlayerHandler.status,
 		}
-
+		
 		#
 		self.gameCommands = {
 			"board" : PlayerHandler.board,
@@ -41,13 +41,13 @@ class PlayerHandler(WebSocketHandler):
 			"startgame" : PlayerHandler.startgame,
 			"move" : PlayerHandler.move,
 		}
-		return
-
+	
 	def open(self):
 		self.app = App.instance
 		print("WebSocket opened")
 		self.gameId = None
-
+		self.init()
+	
 	def on_message(self, message):
 		#self.write_message(u"You said: " + message)
 		splitCommand = message.split(':')
@@ -55,7 +55,7 @@ class PlayerHandler(WebSocketHandler):
 			self.write_message(u"invalid:Invalid Packet!")
 			return
 		command, data = tuple(splitCommand)
-
+		
 		# Run the function assocciated with the command
 		if command in self.publicCommands.keys():
 			self.publicCommands[command](self, data)
@@ -68,12 +68,12 @@ class PlayerHandler(WebSocketHandler):
 			self.gameCommands[command](self, data, gameHandler)
 		else:
 			self.write_message(u"unknown:%s" % message)
-
+	
+	
 	#---------- Public Requests ----------
 	def ping(self, data):
 		self.write_message(u"ping:Pong!")
-		return
-
+	
 	def postdata(self, data):
 		if data.isdigit() and int(data):
 			gameHandler = App.instance.gameHandlers.get(int(data), None)
@@ -81,8 +81,7 @@ class PlayerHandler(WebSocketHandler):
 				gameHandler.sendPostGameReport(self)
 			else:
 				self.write_message(u"info:Game %d does not exist!" % int(data))
-			return
-
+	
 	def join_game(self, data):
 		gameId = 0
 		if data.isdigit() and int(data):
@@ -93,7 +92,7 @@ class PlayerHandler(WebSocketHandler):
 			return
 		gameHandler.addPlayer(self)
 		self.gameId = gameId
-		return
+	
 	def status(self, data):
 		if data.isdigit() and int(data):
 			gameHandler = App.instance.gameHandlers.get(int(data), None)
@@ -101,9 +100,8 @@ class PlayerHandler(WebSocketHandler):
 				self.write_message(u"status:%d" % gameHandler.gameState)
 			else:
 				self.write_message(u"info:Game %d does not exist!" % int(data))
-			return
-			
-		
+	
+	
 	#---------- Game Requests ----------
 	def board(self, data, gameHandler):
 		board = ""
@@ -119,7 +117,8 @@ class PlayerHandler(WebSocketHandler):
 	
 	def gamepostdata(self, data, gameHandler):
 		gameHandler.sendPostGameReport(self)
-
+	
+	
 	#---------- Pre-Game ----------
 	def startgame(self, data, gameHandler):
 		if gameHandler.gameState == GameState.PreGame:
@@ -130,7 +129,8 @@ class PlayerHandler(WebSocketHandler):
 				self.write_message(u"info:You do not have permission to start the game!")
 		else:
 			self.write_message(u"info:The game has already started!")
-
+	
+	
 	#---------- In-Game ---------
 	def move(self, data, gameHandler):
 		if not gameHandler.gameState == GameState.InGame:
@@ -148,10 +148,7 @@ class PlayerHandler(WebSocketHandler):
 			if gameHandler.makeMove(data):
 				return
 		self.write_message(u"invalidmove:")
-		return
-
-
-
+	
 	def on_close(self):
 		print("WebSocket closed")
 		gameHandler = App.instance.gameHandlers.get(self.gameId, None)
@@ -162,10 +159,10 @@ class PlayerHandler(WebSocketHandler):
 				print("Player %d removed from game %d." % (playerId,self.gameId))
 			else:
 				print("Player does not seem to be in game %d!" % self.gameId)
-		
+	
 
 class NewGamePageHandler(RequestHandler):
-
+	
 	def write_page(response, new_name, new_width, new_height, new_max_players, new_error):
 		loader = Loader('templates/')
 		page = loader.load('newgame.html').generate(app=App.instance, name=new_name, width=new_width, height=new_height, max_players=new_max_players, error=new_error)
@@ -173,7 +170,7 @@ class NewGamePageHandler(RequestHandler):
 	
 	def get(response):
 		response.write_page("", "", "", "", "")
-		
+	
 	def post(self):
 		name = self.get_argument('name', "")
 		width = self.get_argument('width', "")
@@ -202,12 +199,14 @@ class NewGamePageHandler(RequestHandler):
 		gameId = App.instance.createNewGameHandler(name, width, height, max_players)
 		print "New Game Created"
 		self.redirect("/game?gameid="+str(gameId))
-		
+	
+
 class LobbyPageHandler(RequestHandler):
 	def get(response):
 		loader = Loader('templates/')
 		page = loader.load('lobby.html').generate(app=App.instance)
 		response.write(page)
+	
 
 class GamePageHandler(RequestHandler):
 	def get(self):
@@ -228,6 +227,7 @@ class GamePageHandler(RequestHandler):
 		loader = Loader('templates/')
 		page = loader.load('game.html').generate(app=App.instance, joinGameId=gameId)
 		self.write(page)
+	
 
 class ReasourceHandler(RequestHandler):
 	def get(self, filename):
@@ -238,28 +238,29 @@ class ReasourceHandler(RequestHandler):
 		else:
 			# just leave the header
 			pass
-
+		
 		# load file
 		with open('reasource/' + filename, 'r') as file:
 			self.write(file.read())
+	
 
 class App(Application):
 	''' App is the webserver instance object. It is responsible for holding all
 	the game instances and responding to HTTP requests.'''
 	instance = None
-
+	
 	def __init__(self):
 		'''Creates the server.'''
-
+		
 		App.instance = self # The can only be one
 		self.usedGameId = 0
-
+		
 		# additional server settings
 		settings = {'debug':True}
-
+		
 		# game instances
 		self.gameHandlers = {}
-
+		
 		# HTTP resource handlers
 		tornado.web.Application.__init__(self, [
 			(r"/", LobbyPageHandler),
@@ -267,10 +268,9 @@ class App(Application):
 			(r"/new", NewGamePageHandler),
 			(r"/game", GamePageHandler),
 			(r'/websocket', PlayerHandler),
-            (r'/reasource/(.+.js)',ReasourceHandler),
-            (r'/reasource/(.+.css)',ReasourceHandler),
+			(r'/reasource/(.+.js)',ReasourceHandler),
+			(r'/reasource/(.+.css)',ReasourceHandler),
 		], **settings)
-		return
 	
 	def getUniqueGameId(self):
 		''' Gives you a unique game ID'''
