@@ -22,15 +22,15 @@ player.on_command = function (command_data) {
 	} else if (command == "info") {
 		alert(command_data);
 	} else if (command == 'redraw') {
-        //redraw_board(data);
+        redrawBoard(data);
     } else if (command == 'board') {
-        //create_board(data);
+        redrawBoard(data);
     }
 };
 
 
 player.init = function () {
-    player.ws = new WebSocket("ws://localhost:8888/websocket");
+    player.ws = new WebSocket("ws://"+location.host+"/websocket");
     player.ws.onopen = function() {
 		player.send_command("join", gameId);
     };

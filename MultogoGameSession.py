@@ -21,6 +21,7 @@ class GameHandler(object):
 		self.playerTurnIndex = 0
 		self.wipePlayersOnLose = False
 		self.gameState = GameState.PreGame
+		self.settingAiReplace = False
 	
 	def getGameStateStr(self):
 		if self.gameState == GameState.PreGame:
@@ -60,14 +61,23 @@ class GameHandler(object):
 						self.sendMessageToAll(u"gamelog:Player %c has won the game!" % self.players[playerwinner].getSymbol())
 						self.sendMessageToAll(u"gameover:%s" % self.players[playerwinner].getSymbol())
 					else:
-						self.playerTurnIndex += 1
-						if self.playerTurnIndex >= self.getPlayerCount():
-							self.playerTurnIndex = 0
-						if not self.sendMessage(self.players[self.playerTurnIndex].client, u"urturn:"):
-							print("AI MOVE PROBLEM 53")
+						self.selectNextTurn()
 					return True
 					
 		return False
+	
+	def selectNextTurn(self):
+		self.playerTurnIndex += 1
+		if self.playerTurnIndex >= self.getPlayerCount():
+			self.playerTurnIndex = 0
+		while (self.players[self.playerTurnIndex].hasLost()):
+			self.playerTurnIndex += 1
+			if self.playerTurnIndex >= self.getPlayerCount():
+				self.playerTurnIndex = 0
+		if not self.sendMessage(self.players[self.playerTurnIndex].client, u"urturn:"):
+			print("AI MOVE PROBLEM 53")
+			self.sendMessageToAll(u"info:AI move issue!")
+			self.selectNextTurn()
 	
 	def doPostGame(self):
 		self.gameState = GameState.PostGame
@@ -140,7 +150,12 @@ class GameHandler(object):
 			if playerId == 0:
 				self.notifyHostPrivileges()
 		else:
-			self.players[playerId].setAi(True)
+			if self.settingAiReplace == True:
+				self.players[playerId].setAi(True)
+			else:
+				self.players[self.playerTurnIndex].setLost()
+				if self.wipePlayersOnLose == True:
+					self.board.removeIdFromBoard(playerId)
 	
 	def closeGameIfEmpty(self):
 		if self.getPlayerCount() <= 0:
@@ -221,7 +236,7 @@ class GameHandler(object):
 						self.board.removeString(stringList[stringIndex][0])
 			for playerId in range(0, self.getPlayerCount()):
 				if self.players[playerId].hasLost() and not self.players[playerId].isWipedOffBoard():
-					removeIdFromBoard(playerId)
+					self.board.removeIdFromBoard(playerId)
 	
 	def getPlayerCount(self):
 		return len(self.players)

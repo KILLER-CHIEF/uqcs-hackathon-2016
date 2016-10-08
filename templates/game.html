@@ -11,17 +11,90 @@
                     <h3 class="panel-title">Status:</h3>
                 </div>
                 <div class="panel-body">
-                <textarea name="cmdinfo" rows="20" style="width:100%; max-width: 100%;" placeholder="Returned Command Data"></textarea>
-				<textarea name="cmddata" rows="2" style="width:100%; max-width: 100%;" placeholder="Command Data"></textarea>
-				<button onclick="sendCmd()">Send Cmd</button>
-                <div id="board"></div>
-
+					<table id="board" style="cursor:pointer; text-align:center; border-collapse:collapse;" border="1">
+						
+					</table>
+					<button onclick="placeStone()">Place Stone</button>
+					<textarea name="cmdinfo" rows="20" style="width:100%; max-width: 100%;" placeholder="Returned Command Data"></textarea>
+					<textarea name="cmddata" rows="2" style="width:100%; max-width: 100%;" placeholder="Command Data"></textarea>
+					<button onclick="sendCmd()">Send Cmd</button>
+					<div id="board"></div>
+					
                 </div>
             </div>
         </div>
     </div>
 </div>
 <script type="text/javascript">
+
+var boardWidth = 0;
+var boardHeight = 0;
+
+var dumby = "4,3,.2.....S...L";
+var dumby2 = "4,3,....J..H...K";
+
+//alert("Loading");
+
+var selectedCellX = -1;
+var selectedCellY = -1;
+
+function placeStone() {
+	player.send_command("move", selectedCellX+" "+selectedCellY);
+}
+
+function cellClicked() {
+	if (this.innerHTML != ".") {
+		return;
+	}
+	var allCells = document.getElementById("board").getElementsByTagName("td");
+	var selectedCell = allCells[(selectedCellY*boardWidth)+selectedCellX];
+	if (selectedCell != undefined) {
+		selectedCell.style.backgroundColor = "";
+	}
+	//alert("i:"+this.i+" j:"+this.j);
+	selectedCellX = this.i;
+	selectedCellY = this.j;
+	this.style.backgroundColor = "#55BBFF";
+}
+
+function redrawBoard(data) {
+	selectedCellX = -1;
+	selectedCellY = -1;
+	var elements = data.split(",");
+	boardWidth = parseInt(elements[0]);
+	boardHeight = parseInt(elements[1]);
+	var cells = [...elements[2]];
+	
+	var board = document.getElementById("board");
+	
+	while(board.firstChild) {
+		board.removeChild(board.firstChild);
+	}
+	
+	for (var j = 0; j < boardHeight; j++) {
+		var tr = document.createElement('tr');
+		for (var i = 0; i < boardWidth; i++) {
+			var td = document.createElement('td');
+			td.width = 16;
+			td.innerHTML = cells[(j*boardWidth)+i];
+			td.i = i;
+			td.j = j;
+			tr.appendChild(td);
+			td.addEventListener("click", cellClicked);
+		}
+		board.appendChild(tr);
+	}
+}
+
+//redrawBoard(dumby);
+//redrawBoard(dumby2);
+
+// Wait until the DOM is loaded
+window.addEventListener("DOMContentLoaded", function() {
+	
+});
+
+
 var gameId = {{joinGameId}};
 player.init();
 </script>

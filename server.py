@@ -17,7 +17,7 @@ from tornado.websocket import WebSocketHandler
 from MultogoGameSession import GameHandler
 from MultogoGameSession import GameState
 
-define("port", default=8888, help="run on the given port", type=int)
+define("port", default=81, help="run on the given port", type=int)
 
 class PlayerHandler(WebSocketHandler):
 
@@ -237,7 +237,9 @@ class App(Application):
 def main():
 	tornado.art.show()
 	options.parse_command_line()
-	App().listen(options.port)
+	#BindIP = GetLocalIP.getLocalIP()
+	#BindIP = "127.0.0.1"
+	App().listen(options.port)#, BindIP)
 	IOLoop.instance().start()
 
 if __name__ == "__main__":
