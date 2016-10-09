@@ -36,7 +36,7 @@ class GameHandler(object):
 		self.gameState = GameState.InGame
 		self.sendMessageToAll(u"gamebegin:")
 		self.sendBoardToAll()
-		self.sendMessage(self.players[self.playerTurnIndex].client, u"urturn:")
+		self.sendMessageToAll(u"turn:%s" % self.players[self.playerTurnIndex].getSymbol())
 	
 	def makeMove(self, data):
 		move = data.split(' ')
@@ -74,7 +74,8 @@ class GameHandler(object):
 			self.playerTurnIndex += 1
 			if self.playerTurnIndex >= self.getPlayerCount():
 				self.playerTurnIndex = 0
-		if not self.sendMessage(self.players[self.playerTurnIndex].client, u"urturn:"):
+		self.sendMessageToAll(u"turn:%s" % self.players[self.playerTurnIndex].getSymbol())
+		if self.players[self.playerTurnIndex].client is None:
 			print("AI MOVE PROBLEM 53")
 			self.sendMessageToAll(u"info:AI move issue!")
 			self.selectNextTurn()
@@ -82,12 +83,10 @@ class GameHandler(object):
 	def doPostGame(self):
 		self.gameState = GameState.PostGame
 		print("Closing game %d!" % self.gameId)
-		for player in self.players:
-			if player.client is not None:
-				self.sendPostGameReport(player.client)
+		self.sendMessageToAll(u"postdata:%s" % self.getPostGameReport())
 	
-	def sendPostGameReport(self, instance):
-		instance.write_message(u"postdata:Derpy tried her best.")
+	def getPostGameReport(self):
+		return "Derpy tried her best.";
 	
 	def sendMessage(self, client, message):
 		if client is not None:
@@ -120,6 +119,14 @@ class GameHandler(object):
 	def setWipePlayersOnLose(self, wipeOff):
 		self.wipePlayersOnLose = wipeOff
 	
+	def allPlayerDataToString(self):
+		if len(self.players) <= 0:
+			return None
+		data = ""
+		for player in self.players:
+			data += "%s-%s-%s," % (player.getSymbol(), "D" if player.hasLost() else "A", "Ai" if player.isAi() else "H")
+		return data[0:-1]
+	
 	def addPlayer(self, instance):
 		print "game %d %d %d %d %d" % (self.gameId, self.gameState, GameState.PreGame, self.getPlayerCount(), self.playersMax)
 		if self.gameState == GameState.PreGame:
@@ -128,7 +135,9 @@ class GameHandler(object):
 				self.players.append(newPlayer)
 				self.sendMessage(instance, u"youare:%s" % newPlayer.getSymbol())
 				self.sendMessageToAll(u"joiner:%s" % newPlayer.getSymbol())
+				self.sendMessageToAll(u"players:%s" % self.allPlayerDataToString())
 				self.sendMessage(instance, u"info:Joined Game!")
+				self.sendMessage(instance, u"state:%d,%s" % (self.gameState, self.getGameStateStr()))
 				if self.getPlayerCount() == 1:
 					self.notifyHostPrivileges()
 				print "Player %s joined game" % newPlayer.getSymbol()
@@ -152,6 +161,7 @@ class GameHandler(object):
 			if playerId == 0:
 				self.notifyHostPrivileges()
 		else:
+			self.players[playerId].client = None;
 			if self.settingAiReplace == True:
 				self.players[playerId].setAi(True)
 			else:
@@ -216,6 +226,7 @@ class GameHandler(object):
 				playerId = self.board.getStoneIdAtIndex(stringList[0][0][0])
 				if not self.players[playerId].hasLost():
 					self.players[playerId].setLost()
+					self.sendMessageToAll(u"lost:%c" % self.players[playerId].getSymbol())
 					if playerId == self.playerTurnIndex:
 						print "Player %c has eliminated themself!" % self.players[playerId].getSymbol()
 						self.sendMessageToAll(u"gamelog:Player %c has eliminated themself!" % self.players[playerId].getSymbol())
@@ -230,6 +241,7 @@ class GameHandler(object):
 					playerId = self.board.getStoneIdAtIndex(stringList[stringIndex][0][0])
 					if not playerId == self.playerTurnIndex:
 						if not self.players[playerId].hasLost():
+							self.sendMessageToAll(u"lost:%c" % self.players[playerId].getSymbol())
 							self.players[self.playerTurnIndex].incrementKills()
 							print "Player %c has been eliminated!" % self.players[playerId].getSymbol()
 							self.sendMessageToAll(u"gamelog:Player %c has been eliminated!" % self.players[playerId].getSymbol())

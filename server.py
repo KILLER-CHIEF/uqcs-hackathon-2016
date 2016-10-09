@@ -36,10 +36,12 @@ class PlayerHandler(WebSocketHandler):
 		#
 		self.gameCommands = {
 			"board" : PlayerHandler.board,
+			"players": PlayerHandler.players,
 			"gamestatus": PlayerHandler.gamestatus,
 			"gamepostdata": PlayerHandler.gamepostdata,
 			"startgame" : PlayerHandler.startgame,
 			"move" : PlayerHandler.move,
+			"chat" : PlayerHandler.chat,
 		}
 	
 	def open(self):
@@ -49,12 +51,12 @@ class PlayerHandler(WebSocketHandler):
 		self.init()
 	
 	def on_message(self, message):
-		#self.write_message(u"You said: " + message)
-		splitCommand = message.split(':')
-		if not len(splitCommand) == 2:
+		firstColonIndex = message.find(':')
+		if firstColonIndex <= 0:
 			self.write_message(u"invalid:Invalid Packet!")
 			return
-		command, data = tuple(splitCommand)
+		command = message[:firstColonIndex]
+		data = message[firstColonIndex+1:]
 		
 		# Run the function assocciated with the command
 		if command in self.publicCommands.keys():
@@ -112,12 +114,27 @@ class PlayerHandler(WebSocketHandler):
 				board += gameHandler.players[int(i)].getSymbol()
 		self.write_message(u"board:"+str(gameHandler.board.getWidth())+','+str(gameHandler.board.getHeight())+','+board)
 	
+	def players(self, data, gameHandler):
+		self.write_message(u"players:%s" % gameHandler.allPlayerDataToString())
+	
 	def gamestatus(self, data, gameHandler):
 		self.write_message(u"status:%d" % gameHandler.gameState)
 	
 	def gamepostdata(self, data, gameHandler):
 		gameHandler.sendPostGameReport(self)
 	
+	def chat(self, data, gameHandler):
+		playerId = gameHandler.getPlayerIdFromInstance(self)
+		if playerId == None:
+			return
+		text = data.replace("\n", " ").strip()
+		if text == "":
+			return
+		text = "%c: %s" % (gameHandler.players[playerId].getSymbol(), text)
+		print(text)
+		for player in gameHandler.players:
+			if player.client is not None:
+				player.client.write_message(u"chat:%s" % text)
 	
 	#---------- Pre-Game ----------
 	def startgame(self, data, gameHandler):

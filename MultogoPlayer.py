@@ -19,7 +19,7 @@ class Player(object):
 	def setSymbol(self, symbol):
 		self.symbol = symbol
 	
-	def isAi(self, ai):
+	def isAi(self):
 		return self.ai
 	
 	def setAi(self, ai):

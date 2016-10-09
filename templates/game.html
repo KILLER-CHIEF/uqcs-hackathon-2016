@@ -8,18 +8,34 @@
         <div class="col-md-8">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <h3 class="panel-title">Status:</h3>
+                    <h3 class="panel-title">Status: <span id="status">Joining</span></h3>
                 </div>
                 <div class="panel-body">
-					<table id="board" style="cursor:pointer; text-align:center; border-collapse:collapse;" border="1">
-						
+					<table style="border-collapse:collapse;" border="1" width="100%">
+						<td width="8%">
+							<table align="center" id="players" style="text-align:center; border-collapse:collapse;" border="1"></table>
+						</td>
+						<td width="52%">
+							<table align="center" id="board" style="cursor:pointer; text-align:center; border-collapse:collapse;" border="1"></table>
+						</td>
+						<td width="40%">
+							<textarea id="chatbox" rows="10" style="width:100%; max-width: 100%;" placeholder="Chat"></textarea>
+							<form action="javascript:void(0);" onsubmit="btnSendChat()">
+								<input type="submit" value="Send" style="float:right"/>
+								<div style="overflow:hidden;">
+									<input id="chatinput" type="text" autocomplete="off" style="width:100%;"/>
+								</div>
+							</form>
+						</td>
 					</table>
-					<button onclick="placeStone()">Place Stone</button>
-					<textarea name="cmdinfo" rows="20" style="width:100%; max-width: 100%;" placeholder="Returned Command Data"></textarea>
-					<textarea name="cmddata" rows="2" style="width:100%; max-width: 100%;" placeholder="Command Data"></textarea>
-					<button onclick="sendCmd()">Send Cmd</button>
-					<div id="board"></div>
-					
+					<input id="info" type="text" style="width:100%;"></input>
+					<button id="btnStartGame" style="display:none;" onclick="btnStartGame()">Start Game</button>
+					<button id="btnPlaceStone" style="display:none;" onclick="btnPlaceStone()">Place Stone</button>
+					<div style="display:none;">
+						<textarea name="cmdinfo" rows="20" style="width:100%; max-width: 100%;" placeholder="Returned Command Data"></textarea>
+						<textarea name="cmddata" rows="2" style="width:100%; max-width: 100%;" placeholder="Command Data"></textarea>
+						<button onclick="sendCmd()">Send Cmd</button>
+					</div>
                 </div>
             </div>
         </div>
@@ -37,12 +53,96 @@ var dumby2 = "4,3,....J..H...K";
 
 var selectedCellX = -1;
 var selectedCellY = -1;
+var selectedPlayerCell = undefined;
 
-function placeStone() {
+function btnPlaceStone() {
 	player.send_command("move", selectedCellX+" "+selectedCellY);
 }
 
-function cellClicked() {
+function btnStartGame() {
+	player.send_command("startgame");
+}
+
+function btnSendChat() {
+	var text = document.getElementById("chatinput").value.replace(/^\s+/, "").replace(/\s+$/, "");
+	if (text != "") {
+		player.send_command("chat", text);
+	}
+	document.getElementById("chatinput").value = "";
+	return false;
+}
+
+function unlockLobbyControls() {
+	document.getElementById("btnStartGame").style.display = "";
+}
+
+function getCellOfTypeInRow(row, type) {
+	var cells = row.getElementsByTagName("td");
+	for (var i = 0; i < cells.length; i++) {
+		if (cells[i].cellType == type) {
+			return cells[i];
+		}
+	}
+	return undefined;
+}
+
+function playerCellClicked() {
+	if (this.playerId == selectedPlayerCell) {
+		this.style.backgroundColor = "";
+		selectedPlayerCell = undefined;
+		return;
+	}
+	if (selectedPlayerCell != undefined) {
+		var selectedPlayerRow = document.getElementById("player"+selectedPlayerCell);
+		getCellOfTypeInRow(selectedPlayerRow, "C").style.backgroundColor = "";
+	}
+	selectedPlayerCell = this.playerId;
+	this.style.backgroundColor = "#55BBFF";
+}
+
+function redrawPlayers(data) {
+	selectedPlayerCell = undefined;
+	var playerData = data.split(",");
+	
+	var playerTable = document.getElementById("players");
+	
+	while (playerTable.firstChild) {
+		playerTable.removeChild(playerTable.firstChild);
+	}
+	
+	for (var i = 0; i < playerData.length; i++) {
+		var playerDataElements = playerData[i].split("-");
+		var playerDataSymbol = playerDataElements[0];
+		var playerDataStatus = playerDataElements[1];
+		var playerDataType = playerDataElements[2];
+		var tr = document.createElement('tr');
+		tr.id = "player" + playerDataSymbol;
+		tr.style.backgroundColor = playerDataStatus == "A" ? "" : "#FF0000";
+		var tdA = document.createElement('td');
+		tdA.playerId = playerDataSymbol;
+		tdA.cellType = "A";
+		tdA.width = 16;
+		tdA.innerHTML = playerDataStatus == "A" ? "" : playerDataStatus;
+		tr.appendChild(tdA);
+		var tdC = document.createElement('td');
+		tdC.style.cursor = "pointer";
+		tdC.playerId = playerDataSymbol;
+		tdC.cellType = "C";
+		tdC.width = 16;
+		tdC.innerHTML = playerDataSymbol;
+		tdC.addEventListener("click", playerCellClicked);
+		tr.appendChild(tdC);
+		var tdB = document.createElement('td');
+		tdB.playerId = playerDataSymbol;
+		tdB.cellType = "B";
+		tdB.width = 16;
+		tdB.innerHTML = playerDataSymbol == playerSymbol ? "<" : playerDataType;
+		tr.appendChild(tdB);
+		playerTable.appendChild(tr);
+	}
+}
+
+function boardCellClicked() {
 	if (this.innerHTML != ".") {
 		return;
 	}
@@ -67,7 +167,7 @@ function redrawBoard(data) {
 	
 	var board = document.getElementById("board");
 	
-	while(board.firstChild) {
+	while (board.firstChild) {
 		board.removeChild(board.firstChild);
 	}
 	
@@ -79,15 +179,12 @@ function redrawBoard(data) {
 			td.innerHTML = cells[(j*boardWidth)+i];
 			td.i = i;
 			td.j = j;
+			td.addEventListener("click", boardCellClicked);
 			tr.appendChild(td);
-			td.addEventListener("click", cellClicked);
 		}
 		board.appendChild(tr);
 	}
 }
-
-//redrawBoard(dumby);
-//redrawBoard(dumby2);
 
 // Wait until the DOM is loaded
 window.addEventListener("DOMContentLoaded", function() {

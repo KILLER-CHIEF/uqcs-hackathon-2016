@@ -7,6 +7,7 @@ alert - alert DATA.
 invalid - internal error. could be anything!
 ping - pong!
 unknown - unknown command was received.
+chat - TO SERVER: clean up and send to all players with symbol: text. TO CLIENT: display in chat.
 
 
 --- Joining and Host ---
@@ -17,12 +18,14 @@ uhost - tells client they have control over game administration and tells user D
 status - game status.
 gamebegin - signals to client the game has begun.
 joiner - DATA is letter.
+lost - DATA is letter.
 leaver - DATA is letter.
 youare - DATA is letter.
 
 
 --- Player Moves / Actions ---
-urturn - client recognises it's their turn.
+!REMOVED! urturn - client recognises it's their turn.
+turn - DATA is player Symbol whose turn it is.
 move - sent to server: DATA="X Y" where X & Y are move coordinate.
 invalidmove - tells client to try again.
 noturturn - tells client the attempted move was not allowed as it is not their turn.
@@ -33,4 +36,5 @@ board - CLIENT: request sent to server. SERVER: send to client the game board DA
 gameover - DATA is player symbol who won, client opens post game?
 postdata - to server DATA is game id, client DATA is report in format ???
 gamelog - DATA to chat box.
-
+players - DATA is all players in game (comma seperated) and is formatted: "X-D-T" where X is player symbol, D is Dead or A=Alive, T is a string on type (Ai or H - Human)
+state - TO CLIENT: DATA is game state: num,text TO SERVER: DATA is empty
