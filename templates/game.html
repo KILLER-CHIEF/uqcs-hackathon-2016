@@ -12,7 +12,7 @@
                 </div>
                 <div class="panel-body">
 					<table style="border-collapse:collapse;" border="1" width="100%">
-						<td width="8%">
+						<td width="8%" valign="top">
 							<table align="center" id="players" style="text-align:center; border-collapse:collapse;" border="1"></table>
 						</td>
 						<td width="52%">
@@ -193,6 +193,7 @@ window.addEventListener("DOMContentLoaded", function() {
 
 
 var gameId = {{joinGameId}};
+var websocketHostAddr = "{{websocketHostAddr}}";
 player.init();
 </script>
 {% end %}

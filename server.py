@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import logging, os
+import re
 
 import tornado.art
 from tornado.httpserver import HTTPServer
@@ -16,10 +17,16 @@ from tornado.websocket import WebSocketHandler
 
 from MultogoGameSession import GameHandler
 from MultogoGameSession import GameState
+import GetLocalIP
 
-define("port", default=81, help="run on the given port", type=int)
+define("port", default=80, help="run on the given port", type=int)
 
 class PlayerHandler(WebSocketHandler):
+
+	def check_origin(self, origin):
+		return super(PlayerHandler, self).check_origin(origin) \
+			or bool(re.match(r"^.*?\.killerchief\.net", origin))
+	
 	# Handle the player connection.
 	#def __init__(self, *wargs, **kwargs):
 	#	# A player has just been created!
@@ -204,7 +211,7 @@ class NewGamePageHandler(RequestHandler):
 			height = int(height)
 		else:
 			height = ""
-		if not max_players == "" and max_players.isdigit() and int(max_players) >= 2:
+		if not max_players == "" and max_players.isdigit() and int(max_players) >= 2 and int(max_players) <= 26:
 			max_players = int(max_players)
 		else:
 			max_players = ""
@@ -242,7 +249,7 @@ class GamePageHandler(RequestHandler):
 		#	return
 		
 		loader = Loader('templates/')
-		page = loader.load('game.html').generate(app=App.instance, joinGameId=gameId)
+		page = loader.load('game.html').generate(app=App.instance, joinGameId=gameId, websocketHostAddr="%s:%d" % (GetLocalIP.getLocalIP(), options.port))
 		self.write(page)
 	
 
