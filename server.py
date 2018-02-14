@@ -19,13 +19,13 @@ from MultogoGameSession import GameHandler
 from MultogoGameSession import GameState
 import GetLocalIP
 
-define("port", default=80, help="run on the given port", type=int)
+define("port", default=27080, help="run on the given port", type=int)
 
 class PlayerHandler(WebSocketHandler):
 
 	def check_origin(self, origin):
 		return super(PlayerHandler, self).check_origin(origin) \
-			or bool(re.match(r"^.*?\.killerchief\.net", origin))
+			or bool(re.match(r"^.*?\.glitchyscripts\.com", origin))
 	
 	# Handle the player connection.
 	#def __init__(self, *wargs, **kwargs):
@@ -217,7 +217,14 @@ class NewGamePageHandler(RequestHandler):
 			max_players = ""
 		
 		if name == "" or width == "" or height == "" or max_players == "":
-			self.write_page(name, width, height, max_players, "Incorrect Data!")
+			error_response = "Incorrect Data!"
+			if name == "":
+				error_response = "The name of the lobby is incorrect!"
+			elif max_players == "":
+				error_response = "Incorrect number of players! Enter a value between 2 and 26."
+			elif width == "" or height == "":
+				error_response = "Incorrect board dimensions! Enter a value between 4 and a reasonable number."
+			self.write_page(name, width, height, max_players, error_response)
 			return
 		
 		gameId = App.instance.createNewGameHandler(name, width, height, max_players)
@@ -304,7 +311,7 @@ class App(Application):
 	def createNewGameHandler(self, name, width, height, max_players):
 		''''''
 		gameId = self.getUniqueGameId()
-		gameHandler = GameHandler(gameId, name, width, height, max_players)
+		gameHandler = GameHandler(gameId, name.replace("[?]", str(gameId)), width, height, max_players)
 		self.gameHandlers[gameId] = gameHandler
 		return gameId
 	

@@ -1,12 +1,95 @@
 {% extends "layout.html" %}
-{% block title %}Multi-go - New Game{% end %}
+{% block title %}Multogo - New Game{% end %}
 {% block content %}
-<form method="post">
-	<input type="text" name="name" placeholder="Server Name" value="{{name}}"/>
-	<input type="text" name="width" placeholder="Board Width" value="{{width}}"/>
-	<input type="text" name="height" placeholder="Board Height" value="{{height}}"/>
-	<input type="text" name="max_players" placeholder="Max Players" value="{{max_players}}"/>
-	<input type="submit" value="Create Game"/>
+<script type="text/javascript">
+
+function randomServerName() {
+	var date = new Date();
+	return "Lobby [?] - " + date.getDate() + "/" + (date.getMonth() + 1);
+}
+
+function replaceValueIfEmpty(id, value) {
+	var element = document.getElementById(id);
+	if (element.value == "") {
+		element.value = value;
+	}
+}
+
+function oneVsOne() {
+	replaceValueIfEmpty("name", randomServerName());
+	document.getElementById("width").value = "7";
+	document.getElementById("height").value = "7";
+	document.getElementById("max_players").value = "2";
+}
+
+function quadPlayers() {
+	replaceValueIfEmpty("name", randomServerName());
+	document.getElementById("width").value = "11";
+	document.getElementById("height").value = "11";
+	document.getElementById("max_players").value = "4";
+}
+
+function octalPlayers() {
+	replaceValueIfEmpty("name", randomServerName());
+	document.getElementById("width").value = "16";
+	document.getElementById("height").value = "16";
+	document.getElementById("max_players").value = "8";
+}
+
+function dozenPlayers() {
+	replaceValueIfEmpty("name", randomServerName());
+	document.getElementById("width").value = "20";
+	document.getElementById("height").value = "20";
+	document.getElementById("max_players").value = "12";
+}
+
+function sixteenPlayers() {
+	replaceValueIfEmpty("name", randomServerName());
+	document.getElementById("width").value = "24";
+	document.getElementById("height").value = "24";
+	document.getElementById("max_players").value = "16";
+}
+
+function twentySixPlayers() {
+	replaceValueIfEmpty("name", randomServerName());
+	document.getElementById("width").value = "30";
+	document.getElementById("height").value = "30";
+	document.getElementById("max_players").value = "26";
+}
+
+</script>
+<h2>Create a new game</h2>
+<form method="post" style="padding:4px;">
+	<table border="0">
+	<tbody>
+		<tr>
+			<td><label for="name">Lobby Name: </label></td>
+			<td><input type="text" id="name" name="name" placeholder="Lobby Name" value="{{name}}" autofocus="autofocus"/><br></td>
+		</tr>
+		<tr>
+			<td><label for="max_players">Max No. of Players:&nbsp;&nbsp;</label></td>
+			<td><input type="text" id="max_players" name="max_players" placeholder="Players (2-26)" value="{{max_players}}"/><br></td>
+		</tr>
+		<tr>
+			<td><label for="width">Board Width: </label></td>
+			<td><input type="text" id="width" name="width" placeholder="Width (>=4)" value="{{width}}"/><br></td>
+		</tr>
+		<tr>
+			<td><label for="height">Board Height: </label></td>
+			<td><input type="text" id="height" name="height" placeholder="Height (>=4)" value="{{height}}"/><br></td>
+		</tr>
+	</tbody>
+	</table>
+	<h4><input type="submit" value="Create Game"/></h4>
 </form>
-{{error}}
+<span style="color:red;">{{error}}</span>
+<hr>
+<h3>Presets</h3>
+<button onclick="oneVsOne()">1 vs 1</button>
+<button onclick="quadPlayers()">4 Players</button>
+<button onclick="octalPlayers()">8 Players</button>
+<button onclick="dozenPlayers()">12 Players</button>
+<button onclick="sixteenPlayers()">16 Players</button>
+<button onclick="twentySixPlayers()">The Full Alphabet!</button>
+<hr>
 {% end %}

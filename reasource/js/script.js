@@ -98,7 +98,7 @@ player.on_command = function (command_data) {
 
 player.init = function () {
 	//location.host
-    player.ws = new WebSocket("ws://"+websocketHostAddr+"/websocket");
+    player.ws = new WebSocket("ws://"+location.host+"/websocket");
     player.ws.onopen = function() {
 		player.send_command("join", gameId);
     };
