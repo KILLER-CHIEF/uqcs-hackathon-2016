@@ -148,7 +148,10 @@ class PlayerHandler(WebSocketHandler):
 		if gameHandler.gameState == GameState.PreGame:
 			playerId = gameHandler.getPlayerIdFromInstance(self)
 			if playerId == 0:
-				gameHandler.startGame()
+				if len(gameHandler.players) > 1:
+					gameHandler.startGame()
+				else:
+					self.write_message(u"info:Must have at least 2 players in game to start!")
 			else:
 				self.write_message(u"info:You do not have permission to start the game!")
 		else:
