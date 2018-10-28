@@ -168,6 +168,8 @@ class GameHandler(object):
 				self.players[self.playerTurnIndex].setLost()
 				if self.wipePlayersOnLose == True:
 					self.board.removeIdFromBoard(playerId)
+			del self.players[playerId]
+		print len(self.players)
 	
 	def closeGameIfEmpty(self):
 		if self.getPlayerCount() <= 0:
