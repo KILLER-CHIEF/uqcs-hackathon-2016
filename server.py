@@ -183,10 +183,8 @@ class PlayerHandler(WebSocketHandler):
 			playerId = gameHandler.getPlayerIdFromInstance(self)
 			if playerId is not None:
 				playerSymbol = gameHandler.getPlayerSymbolfromId
-				print gameHandler.playersRemaining()[1][0]
 				print("Player %s left game %d." % (playerSymbol(playerId),self.gameId))
 				gameHandler.removePlayer(playerId)
-				print gameHandler.playersRemaining()[1][0]
 				if gameHandler.playersRemaining()[0] == 1: 
 					print("1 player left in game %d: Player %s wins by default" % (self.gameId,playerSymbol(gameHandler.playersRemaining()[1][0])))
 				elif gameHandler.playersRemaining()[0] == 0:
