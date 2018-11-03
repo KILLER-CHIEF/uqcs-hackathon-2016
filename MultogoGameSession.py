@@ -165,7 +165,7 @@ class GameHandler(object):
 			if self.settingAiReplace == True:
 				self.players[playerId].setAi(True)
 			else:
-				self.players[self.playerTurnIndex].setLost()
+				self.players[playerId].setLost()
 				if self.wipePlayersOnLose == True:
 					self.board.removeIdFromBoard(playerId)
 	
