@@ -165,7 +165,7 @@ class GameHandler(object):
 			if self.settingAiReplace == True:
 				self.players[playerId].setAi(True)
 			else:
-				self.players[self.playerTurnIndex].setLost()
+				self.players[playerId].setLost()
 				if self.wipePlayersOnLose == True:
 					self.board.removeIdFromBoard(playerId)
 	
@@ -203,6 +203,9 @@ class GameHandler(object):
 			if self.players[playerId].client == instance:
 				return playerId
 		return None
+	
+	def getPlayerSymbolfromId(self, playerId):
+		return self.players[playerId].getSymbol()
 	
 	def doBoardActions(self):
 		self.removeNoLiberties()

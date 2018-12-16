@@ -148,7 +148,10 @@ class PlayerHandler(WebSocketHandler):
 		if gameHandler.gameState == GameState.PreGame:
 			playerId = gameHandler.getPlayerIdFromInstance(self)
 			if playerId == 0:
-				gameHandler.startGame()
+				if len(gameHandler.players) > 1:
+					gameHandler.startGame()
+				else:
+					self.write_message(u"info:Must have at least 2 players in game to start!")
 			else:
 				self.write_message(u"info:You do not have permission to start the game!")
 		else:
@@ -179,8 +182,17 @@ class PlayerHandler(WebSocketHandler):
 		if gameHandler is not None:
 			playerId = gameHandler.getPlayerIdFromInstance(self)
 			if playerId is not None:
+				playerSymbol = gameHandler.getPlayerSymbolfromId
+				
+				print("Player %s left game %d." % (playerSymbol(playerId),self.gameId))
 				gameHandler.removePlayer(playerId)
-				print("Player %d removed from game %d." % (playerId,self.gameId))
+				
+				if gameHandler.playersRemaining()[0] == 1: 
+					print("1 player left in game %d: Player %s wins by default" % (self.gameId,playerSymbol(gameHandler.playersRemaining()[1][0])))
+				elif gameHandler.playersRemaining()[0] == 0:
+					print("All players have left game %d" % self.gameId)
+				else:
+					print("%d Players left " % (gameHandler.playersRemaining()[0]))		
 			else:
 				print("Player does not seem to be in game %d!" % self.gameId)
 	
