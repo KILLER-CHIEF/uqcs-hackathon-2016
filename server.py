@@ -185,14 +185,17 @@ class PlayerHandler(WebSocketHandler):
 				playerSymbol = gameHandler.getPlayerSymbolfromId
 				
 				print("Player %s left game %d." % (playerSymbol(playerId),self.gameId))
+                                gameHandler.sendMessageToAll(u"gamelog:Player %s left game %d." % (playerSymbol(playerId),self.gameId))
 				gameHandler.removePlayer(playerId)
-				
+		
 				if gameHandler.playersRemaining()[0] == 1: 
 					print("1 player left in game %d: Player %s wins by default" % (self.gameId,playerSymbol(gameHandler.playersRemaining()[1][0])))
+                                        gameHandler.sendMessageToAll(u"gamelog:1 player left in game %d: Player %s wins by default" % (self.gameId,playerSymbol(gameHandler.playersRemaining()[1][0])))
 				elif gameHandler.playersRemaining()[0] == 0:
-					print("All players have left game %d" % self.gameId)
+					print("All players have left the game %d" % self.gameId)
 				else:
-					print("%d Players left " % (gameHandler.playersRemaining()[0]))		
+					print("%d Players left " % (gameHandler.playersRemaining()[0]))
+					gameHandler.sendMessageToAll(u"gamelog:%d Players left " % (gameHandler.playersRemaining()[0]))
 			else:
 				print("Player does not seem to be in game %d!" % self.gameId)
 	
